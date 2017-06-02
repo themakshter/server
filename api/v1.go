@@ -7,10 +7,6 @@ import (
 	"net/http"
 )
 
-type Listener interface {
-	Listen() error
-}
-
 type v1 struct {
 	db                  data.Base
 	questionType        *graphql.Object
@@ -22,23 +18,18 @@ type v1 struct {
 	meetingType         *graphql.Object
 }
 
-func NewV1(db data.Base) Listener {
+func NewV1(db data.Base) (http.Handler, error) {
 	v := &v1{
 		db: db,
 	}
 	v.initSchemaTypes()
-	return v
-}
-
-func (v *v1) Listen() error {
 	schema, err := v.getSchema()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	h := handler.New(&handler.Config{
 		Schema: schema,
 		Pretty: true,
 	})
-	http.Handle("/graphql", h)
-	return nil
+	return h, nil
 }

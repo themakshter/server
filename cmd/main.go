@@ -5,13 +5,21 @@ import (
 
 	"github.com/impactasaurus/server/api"
 	"github.com/impactasaurus/server/data"
+	"github.com/rs/cors"
 )
 
 func main() {
 	db := data.NewMongo()
-	v1 := api.NewV1(db)
-	if err := v1.Listen(); err != nil {
+
+	v1Handler, err := api.NewV1(db)
+	if err != nil {
 		panic(err)
 	}
-	http.ListenAndServe(":8080", nil)
+
+	c := cors.New(cors.Options{
+		AllowCredentials: true,
+	})
+	http.Handle("/v1/graphql", c.Handler(v1Handler))
+
+	http.ListenAndServe(":80", nil)
 }

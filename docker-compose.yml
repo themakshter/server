@@ -1,0 +1,17 @@
+mongo:
+  image: mongo:latest
+server:
+  build: .
+  ports:
+    - "8080:80"
+  links: 
+    - "mongo"
+  environment:
+    - MONGO_HOST=mongo
+graphiql:
+  build: ./graphiql
+  ports:
+    - "8081:80"
+  links: 
+    - "server:local-impactasaurus.com"
+
