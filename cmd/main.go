@@ -4,22 +4,27 @@ import (
 	"net/http"
 
 	"github.com/impactasaurus/server/api"
-	"github.com/impactasaurus/server/data"
-	"github.com/rs/cors"
+	"github.com/impactasaurus/server/data/mongo"
+	corsLib "github.com/rs/cors"
 )
 
 func main() {
-	db := data.NewMongo()
+	c := mustGetConfiguration()
+
+	db, err := mongo.New(c.Mongo.URL, c.Mongo.Port, c.Mongo.Database, c.Mongo.User, c.Mongo.Password)
+	if err != nil {
+		panic(err)
+	}
 
 	v1Handler, err := api.NewV1(db)
 	if err != nil {
 		panic(err)
 	}
 
-	c := cors.New(cors.Options{
+	cors := corsLib.New(corsLib.Options{
 		AllowCredentials: true,
 	})
-	http.Handle("/v1/graphql", c.Handler(v1Handler))
+	http.Handle("/v1/graphql", cors.Handler(v1Handler))
 
 	http.ListenAndServe(":80", nil)
 }
