@@ -89,6 +89,9 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 	schema, err := graphql.NewSchema(graphql.SchemaConfig{
 		Query:    queryType,
 		Mutation: mutationType,
+		Types: []graphql.Type{
+			v.likertScale,
+		},
 	})
 	if err != nil {
 		return nil, err

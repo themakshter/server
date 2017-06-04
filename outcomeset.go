@@ -1,9 +1,13 @@
 package server
 
+const LIKERT = "likert"
+
 type Question struct {
-	ID       string `json:"id"`
-	Question string `json:"question"`
-	Type     string `json:"type"`
+	ID       string                 `json:"id"`
+	Question string                 `json:"question"`
+	Type     string                 `json:"type"`
+	Deleted  bool                   `json:"deleted"`
+	Options  map[string]interface{} `json:"options"`
 }
 
 type OutcomeSet struct {

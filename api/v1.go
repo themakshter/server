@@ -8,14 +8,17 @@ import (
 )
 
 type v1 struct {
-	db                  data.Base
-	questionType        *graphql.Object
-	questionInputType   *graphql.InputObject
+	db data.Base
+
+	questionInterface   *graphql.Interface
+	likertScale         *graphql.Object
 	outcomeSetType      *graphql.Object
 	outcomeSetInputType *graphql.InputObject
-	answerType          *graphql.Object
-	organisationType    *graphql.Object
-	meetingType         *graphql.Object
+
+	meetingType *graphql.Object
+	answerType  *graphql.Object
+
+	organisationType *graphql.Object
 }
 
 func NewV1(db data.Base) (http.Handler, error) {

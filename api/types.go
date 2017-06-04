@@ -22,9 +22,9 @@ func (v *v1) initSchemaTypes() {
 		},
 	})
 
-	v.questionType = graphql.NewObject(graphql.ObjectConfig{
-		Name:        "Question",
-		Description: "Question belonging to an outcome set",
+	v.questionInterface = graphql.NewInterface(graphql.InterfaceConfig{
+		Name:        "QuestionInterface",
+		Description: "The interface satisfied by all question types",
 		Fields: graphql.Fields{
 			"id": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.String),
@@ -34,26 +34,121 @@ func (v *v1) initSchemaTypes() {
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "The question",
 			},
-			"type": &graphql.Field{
-				Type:        graphql.NewNonNull(graphql.String),
-				Description: "Question type",
+			"deleted": &graphql.Field{
+				Type:        graphql.NewNonNull(graphql.Boolean),
+				Description: "Whether the question has been deleted",
 			},
+		},
+		ResolveType: func(p graphql.ResolveTypeParams) *graphql.Object {
+			obj, ok := p.Value.(impact.Question)
+			if !ok {
+				return v.likertScale
+			}
+			switch obj.Type {
+			case impact.LIKERT:
+				return v.likertScale
+			default:
+				return v.likertScale
+			}
 		},
 	})
 
-	v.questionInputType = graphql.NewInputObject(graphql.InputObjectConfig{
-		Name: "QuestionInput",
-		Fields: graphql.InputObjectConfigFieldMap{
-			"question": &graphql.InputObjectFieldConfig{
+	v.likertScale = graphql.NewObject(graphql.ObjectConfig{
+		Name:        "LikertScale",
+		Description: "Question gathering information using Likert Scales",
+		Interfaces: []*graphql.Interface{
+			v.questionInterface,
+		},
+		Fields: graphql.Fields{
+			"id": &graphql.Field{
+				Type:        graphql.NewNonNull(graphql.String),
+				Description: "Unique ID for the question",
+			},
+			"question": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "The question",
 			},
-			"type": &graphql.InputObjectFieldConfig{
-				Type:        graphql.NewNonNull(graphql.String),
-				Description: "Question type",
+			"deleted": &graphql.Field{
+				Type:        graphql.NewNonNull(graphql.Boolean),
+				Description: "Whether the question has been deleted",
+			},
+			"minValue": &graphql.Field{
+				Type:        graphql.Int,
+				Description: "The minimum value in the scale",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					obj, ok := p.Source.(impact.Question)
+					if !ok {
+						return nil, errors.New("Expecting an impact.Question")
+					}
+					minValue, ok := obj.Options["minValue"]
+					if !ok {
+						return nil, nil
+					}
+					minValueInt, ok := minValue.(int)
+					if !ok {
+						return nil, errors.New("Min likert value should be an int")
+					}
+					return minValueInt, nil
+				},
+			},
+			"maxValue": &graphql.Field{
+				Type:        graphql.NewNonNull(graphql.Int),
+				Description: "The maximum value in the scale",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					obj, ok := p.Source.(impact.Question)
+					if !ok {
+						return nil, errors.New("Expecting an impact.Question")
+					}
+					maxValue, ok := obj.Options["maxValue"]
+					if !ok {
+						return nil, nil
+					}
+					maxValueInt, ok := maxValue.(int)
+					if !ok {
+						return nil, errors.New("Max likert value should be an int")
+					}
+					return maxValueInt, nil
+				},
+			},
+			"minLabel": &graphql.Field{
+				Type:        graphql.String,
+				Description: "The string labelling the minimum value in the scale",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					obj, ok := p.Source.(impact.Question)
+					if !ok {
+						return nil, errors.New("Expecting an impact.Question")
+					}
+					label, ok := obj.Options["minLabel"]
+					if !ok {
+						return nil, nil
+					}
+					labelStr, ok := label.(string)
+					if !ok {
+						return nil, errors.New("Min likert label should be an string")
+					}
+					return labelStr, nil
+				},
+			},
+			"maxLabel": &graphql.Field{
+				Type:        graphql.String,
+				Description: "The string labelling the maximum value in the scale",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					obj, ok := p.Source.(impact.Question)
+					if !ok {
+						return nil, errors.New("Expecting an impact.Question")
+					}
+					label, ok := obj.Options["maxLabel"]
+					if !ok {
+						return nil, nil
+					}
+					labelStr, ok := label.(string)
+					if !ok {
+						return nil, errors.New("Max likert label should be an string")
+					}
+					return labelStr, nil
+				},
 			},
 		},
-		Description: "A definition of a new outcomeset",
 	})
 
 	v.outcomeSetType = graphql.NewObject(graphql.ObjectConfig{
@@ -94,7 +189,7 @@ func (v *v1) initSchemaTypes() {
 				Description: "Information about the outcome set",
 			},
 			"questions": &graphql.Field{
-				Type:        graphql.NewNonNull(graphql.NewList(v.questionType)),
+				Type:        graphql.NewNonNull(graphql.NewList(v.questionInterface)),
 				Description: "Questions associated with the outcome set",
 			},
 		},
