@@ -7,7 +7,7 @@ type Question struct {
 }
 
 type OutcomeSet struct {
-	ID             string     `json:"id"`
+	ID             string     `json:"id",bson:"_id"`
 	OrganisationID string     `json:"organisationID"`
 	Name           string     `json:"name"`
 	Description    string     `json:"description"`

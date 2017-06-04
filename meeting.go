@@ -10,7 +10,7 @@ type Answer struct {
 }
 
 type Meeting struct {
-	ID             string    `json:"id"`
+	ID             string    `json:"id",bson:"_id"`
 	Beneficiary    string    `json:"beneficiary"`
 	User           string    `json:"user"`
 	OutcomeSetID   string    `json:"outcomeSetID"`
