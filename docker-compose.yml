@@ -1,5 +1,7 @@
 mongo:
   image: mongo:latest
+  ports:
+    - "27017"
 server:
   build: .
   ports:
