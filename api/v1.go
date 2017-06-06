@@ -15,8 +15,9 @@ type v1 struct {
 	outcomeSetType      *graphql.Object
 	outcomeSetInputType *graphql.InputObject
 
-	meetingType *graphql.Object
-	answerType  *graphql.Object
+	answerInterface *graphql.Interface
+	numericAnswer   *graphql.Object
+	meetingType     *graphql.Object
 
 	organisationType *graphql.Object
 }

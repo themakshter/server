@@ -216,17 +216,54 @@ func (v *v1) initSchemaTypes() {
 		Description: "A definition of a new outcomeset",
 	})
 
-	v.answerType = graphql.NewObject(graphql.ObjectConfig{
-		Name:        "Answer",
-		Description: "Answer to a question",
+	v.answerInterface = graphql.NewInterface(graphql.InterfaceConfig{
+		Name:        "AnswerInterface",
+		Description: "The interface satisfied by all answer types",
+		Fields: graphql.Fields{
+			"questionID": &graphql.Field{
+				Type:        graphql.NewNonNull(graphql.String),
+				Description: "The ID of the question answered",
+			},
+		},
+		ResolveType: func(p graphql.ResolveTypeParams) *graphql.Object {
+			obj, ok := p.Value.(impact.Answer)
+			if !ok {
+				return v.numericAnswer
+			}
+			switch obj.Type {
+			case impact.NUMERIC:
+				return v.numericAnswer
+			default:
+				return v.numericAnswer
+			}
+		},
+	})
+
+	v.numericAnswer = graphql.NewObject(graphql.ObjectConfig{
+		Name:        "NumericAnswer",
+		Description: "Answer containing numeric value",
+		Interfaces: []*graphql.Interface{
+			v.answerInterface,
+		},
 		Fields: graphql.Fields{
 			"questionID": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "The ID of the question answered",
 			},
 			"answer": &graphql.Field{
-				Type:        graphql.NewNonNull(graphql.String),
-				Description: "The provided answer",
+				Type:        graphql.NewNonNull(graphql.Float),
+				Description: "The provided numeric answer",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					obj, ok := p.Source.(impact.Answer)
+					if !ok {
+						return nil, errors.New("Expecting an impact.Answer")
+					}
+					num, ok := obj.Answer.(float64)
+					if !ok {
+						return nil, errors.New("Expected a numeric value")
+					}
+					return num, nil
+				},
 			},
 		},
 	})
@@ -294,7 +331,7 @@ func (v *v1) initSchemaTypes() {
 				},
 			},
 			"answers": &graphql.Field{
-				Type:        graphql.NewNonNull(graphql.NewList(v.answerType)),
+				Type:        graphql.NewNonNull(graphql.NewList(v.answerInterface)),
 				Description: "The answers provided in the meeting",
 			},
 			"conducted": &graphql.Field{

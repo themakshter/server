@@ -91,6 +91,7 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 		Mutation: mutationType,
 		Types: []graphql.Type{
 			v.likertScale,
+			v.numericAnswer,
 		},
 	})
 	if err != nil {

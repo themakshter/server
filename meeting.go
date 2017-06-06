@@ -4,9 +4,12 @@ import (
 	"time"
 )
 
+const NUMERIC = "numeric"
+
 type Answer struct {
 	QuestionID string      `json:"questionID" bson:"questionID"`
 	Answer     interface{} `json:"answer"`
+	Type       string      `json:"type"`
 }
 
 type Meeting struct {
