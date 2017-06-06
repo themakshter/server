@@ -173,9 +173,11 @@ func (v *v1) initSchemaTypes() {
 						organisationID = t.OrganisationID
 					case impact.OutcomeSet:
 						organisationID = t.OrganisationID
+					default:
+						return nil, errors.New("Expected an OutcomeSet when resolving Organisation")
 					}
 					if organisationID == "" {
-						return nil, errors.New("Expected an OutcomeSet when resolving Organisation")
+						return nil, errors.New("Organisation ID is missing on OutcomeSet")
 					}
 					return v.db.GetOrganisation(organisationID)
 				},
@@ -259,9 +261,11 @@ func (v *v1) initSchemaTypes() {
 						outcomeSetID = t.OutcomeSetID
 					case impact.Meeting:
 						outcomeSetID = t.OutcomeSetID
+					default:
+						return nil, errors.New("Expected an Meeting when resolving outcomeSet")
 					}
 					if outcomeSetID == "" {
-						return nil, errors.New("Expected an Meeting when resolving outcomeSet")
+						return nil, errors.New("OutcomeSetID is missing on Meeting")
 					}
 					return v.db.GetOutcomeSet(outcomeSetID)
 				},
@@ -280,9 +284,11 @@ func (v *v1) initSchemaTypes() {
 						organisationID = t.OrganisationID
 					case impact.Meeting:
 						organisationID = t.OrganisationID
+					default:
+						return nil, errors.New("Expected an Meeting when resolving Organisation")
 					}
 					if organisationID == "" {
-						return nil, errors.New("Expected an Meeting when resolving Organisation")
+						return nil, errors.New("OrganisationID is missing on Meeting")
 					}
 					return v.db.GetOrganisation(organisationID)
 				},
