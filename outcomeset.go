@@ -11,8 +11,8 @@ type Question struct {
 }
 
 type OutcomeSet struct {
-	ID             string     `json:"id",bson:"_id"`
-	OrganisationID string     `json:"organisationID"`
+	ID             string     `json:"id" bson:"_id"`
+	OrganisationID string     `json:"organisationID" bson:"organisationID"`
 	Name           string     `json:"name"`
 	Description    string     `json:"description"`
 	Questions      []Question `json:"questions"`
