@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/impactasaurus/server/api"
+	"github.com/impactasaurus/server/auth"
 	"github.com/impactasaurus/server/data/mongo"
 	corsLib "github.com/rs/cors"
 )
@@ -24,7 +25,7 @@ func main() {
 	cors := corsLib.New(corsLib.Options{
 		AllowCredentials: true,
 	})
-	http.Handle("/v1/graphql", cors.Handler(v1Handler))
+	http.Handle("/v1/graphql", cors.Handler(auth.Middleware(v1Handler)))
 
 	http.ListenAndServe(":80", nil)
 }
