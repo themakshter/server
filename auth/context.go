@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"errors"
-	"fmt"
 )
 
 type key int
@@ -22,12 +21,6 @@ func newContextWithAuthError(ctx context.Context, err error) context.Context {
 func GetUser(ctx context.Context) (User, error) {
 	user, uOk := ctx.Value(userIndex).(User)
 	err, eOk := ctx.Value(authErrorIndex).(error)
-
-	fmt.Println("getuser")
-	fmt.Println(uOk)
-	fmt.Println(eOk)
-	fmt.Println(user)
-	fmt.Println(err)
 
 	if user != nil && uOk && err == nil {
 		return user, nil

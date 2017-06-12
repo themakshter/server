@@ -1,9 +1,7 @@
 package api
 
 import (
-	"fmt"
 	"github.com/graphql-go/graphql"
-	"github.com/impactasaurus/server/auth"
 )
 
 func (v *v1) getSchema() (*graphql.Schema, error) {
