@@ -22,6 +22,14 @@ type v1 struct {
 	organisationType *graphql.Object
 }
 
+type graphqlHandlerWrapper struct {
+	h *handler.Handler
+}
+
+func (gw *graphqlHandlerWrapper) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	gw.h.ContextHandler(r.Context(), w, r)
+}
+
 func NewV1(db data.Base) (http.Handler, error) {
 	v := &v1{
 		db: db,
@@ -35,5 +43,5 @@ func NewV1(db data.Base) (http.Handler, error) {
 		Schema: schema,
 		Pretty: true,
 	})
-	return h, nil
+	return &graphqlHandlerWrapper{h}, nil
 }
