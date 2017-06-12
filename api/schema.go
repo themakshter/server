@@ -1,7 +1,9 @@
 package api
 
 import (
+	"fmt"
 	"github.com/graphql-go/graphql"
+	"github.com/impactasaurus/server/auth"
 )
 
 func (v *v1) getSchema() (*graphql.Schema, error) {
@@ -10,13 +12,15 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 		Name: "Query",
 		Fields: graphql.Fields{
 			"outcomesets": &graphql.Field{
-				Type: graphql.NewList(v.outcomeSetType),
+				Type:        graphql.NewList(v.outcomeSetType),
+				Description: "Gather all outcome sets",
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					return v.db.GetOutcomeSets()
 				},
 			},
 			"outcomeset": &graphql.Field{
-				Type: v.outcomeSetType,
+				Type:        v.outcomeSetType,
+				Description: "Gather a specific outcome set",
 				Args: graphql.FieldConfigArgument{
 					"id": &graphql.ArgumentConfig{
 						Description: "The ID of the outcomeset",
@@ -28,7 +32,8 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 				},
 			},
 			"organisation": &graphql.Field{
-				Type: v.organisationType,
+				Type:        v.organisationType,
+				Description: "Get an organisation by ID",
 				Args: graphql.FieldConfigArgument{
 					"id": &graphql.ArgumentConfig{
 						Description: "The ID of the organisation",
@@ -40,7 +45,8 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 				},
 			},
 			"meeting": &graphql.Field{
-				Type: v.meetingType,
+				Type:        v.meetingType,
+				Description: "Get a meeting by meeting ID",
 				Args: graphql.FieldConfigArgument{
 					"id": &graphql.ArgumentConfig{
 						Description: "The ID of the meeting",
@@ -52,7 +58,8 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 				},
 			},
 			"meetings": &graphql.Field{
-				Type: graphql.NewList(v.meetingType),
+				Type:        graphql.NewList(v.meetingType),
+				Description: "Get all meetings associated with a beneficiary",
 				Args: graphql.FieldConfigArgument{
 					"beneficiary": &graphql.ArgumentConfig{
 						Description: "The ID of the beneficiary",
