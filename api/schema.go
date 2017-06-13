@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/graphql-go/graphql"
+	"github.com/impactasaurus/server/auth"
 )
 
 func (v *v1) getSchema() (*graphql.Schema, error) {
@@ -12,9 +13,9 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 			"outcomesets": &graphql.Field{
 				Type:        graphql.NewList(v.outcomeSetType),
 				Description: "Gather all outcome sets",
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return v.db.GetOutcomeSets()
-				},
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+					return v.db.GetOutcomeSets(u)
+				}),
 			},
 			"outcomeset": &graphql.Field{
 				Type:        v.outcomeSetType,
@@ -25,9 +26,9 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 						Type:        graphql.NewNonNull(graphql.String),
 					},
 				},
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return v.db.GetOutcomeSet(p.Args["id"].(string))
-				},
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+					return v.db.GetOutcomeSet(p.Args["id"].(string), u)
+				}),
 			},
 			"organisation": &graphql.Field{
 				Type:        v.organisationType,
@@ -38,9 +39,9 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 						Type:        graphql.NewNonNull(graphql.String),
 					},
 				},
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return v.db.GetOrganisation(p.Args["id"].(string))
-				},
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+					return v.db.GetOrganisation(p.Args["id"].(string), u)
+				}),
 			},
 			"meeting": &graphql.Field{
 				Type:        v.meetingType,
@@ -51,9 +52,9 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 						Type:        graphql.NewNonNull(graphql.String),
 					},
 				},
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return v.db.GetMeeting(p.Args["id"].(string))
-				},
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+					return v.db.GetMeeting(p.Args["id"].(string), u)
+				}),
 			},
 			"meetings": &graphql.Field{
 				Type:        graphql.NewList(v.meetingType),
@@ -64,9 +65,9 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 						Type:        graphql.NewNonNull(graphql.String),
 					},
 				},
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return v.db.GetMeetingsForBeneficiary(p.Args["beneficiary"].(string))
-				},
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+					return v.db.GetMeetingsForBeneficiary(p.Args["beneficiary"].(string), u)
+				}),
 			},
 		},
 	})
@@ -83,10 +84,10 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 						Description: "The new outcomeset",
 					},
 				},
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
 					os := p.Args["outcomesetIn"].(map[string]interface{})
-					return v.db.GetOutcomeSet(os["organisation"].(string))
-				},
+					return v.db.GetOutcomeSet(os["organisation"].(string), u)
+				}),
 			},
 		},
 	})

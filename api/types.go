@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/graphql-go/graphql"
 	impact "github.com/impactasaurus/server"
+	"github.com/impactasaurus/server/auth"
 )
 
 func (v *v1) initSchemaTypes() {
@@ -166,7 +167,7 @@ func (v *v1) initSchemaTypes() {
 			"organisation": &graphql.Field{
 				Type:        graphql.NewNonNull(v.organisationType),
 				Description: "The owning organisation of the outcome set",
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
 					var organisationID string
 					switch t := p.Source.(type) {
 					case *impact.OutcomeSet:
@@ -179,8 +180,8 @@ func (v *v1) initSchemaTypes() {
 					if organisationID == "" {
 						return nil, errors.New("Organisation ID is missing on OutcomeSet")
 					}
-					return v.db.GetOrganisation(organisationID)
-				},
+					return v.db.GetOrganisation(organisationID, u)
+				}),
 			},
 			"name": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.String),
@@ -291,7 +292,7 @@ func (v *v1) initSchemaTypes() {
 			"outcomeSet": &graphql.Field{
 				Type:        graphql.NewNonNull(v.outcomeSetType),
 				Description: "The outcome set answered",
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
 					var outcomeSetID string
 					switch t := p.Source.(type) {
 					case *impact.Meeting:
@@ -304,8 +305,8 @@ func (v *v1) initSchemaTypes() {
 					if outcomeSetID == "" {
 						return nil, errors.New("OutcomeSetID is missing on Meeting")
 					}
-					return v.db.GetOutcomeSet(outcomeSetID)
-				},
+					return v.db.GetOutcomeSet(outcomeSetID, u)
+				}),
 			},
 			"organisationID": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.String),
@@ -314,7 +315,7 @@ func (v *v1) initSchemaTypes() {
 			"organisation": &graphql.Field{
 				Type:        graphql.NewNonNull(v.organisationType),
 				Description: "The owning organisation of the outcome set",
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
 					var organisationID string
 					switch t := p.Source.(type) {
 					case *impact.Meeting:
@@ -327,8 +328,8 @@ func (v *v1) initSchemaTypes() {
 					if organisationID == "" {
 						return nil, errors.New("OrganisationID is missing on Meeting")
 					}
-					return v.db.GetOrganisation(organisationID)
-				},
+					return v.db.GetOrganisation(organisationID, u)
+				}),
 			},
 			"answers": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.NewList(v.answerInterface)),
