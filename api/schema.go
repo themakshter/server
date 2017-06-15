@@ -106,7 +106,7 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 				Description: "Edit an outcomeset",
 				Args: graphql.FieldConfigArgument{
 					"outcomeSetID": &graphql.ArgumentConfig{
-						Type: graphql.NewNonNull(graphql.String),
+						Type: graphql.NewNonNull(graphql.ID),
 						Description: "The ID of the outcomeset",
 					},
 					"name": &graphql.ArgumentConfig{

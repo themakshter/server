@@ -12,13 +12,13 @@ func (v *v1) initSchemaTypes() {
 		Name:        "Organisation",
 		Description: "An organisation",
 		Fields: graphql.Fields{
+			"id": &graphql.Field{
+				Type:        graphql.NewNonNull(graphql.ID),
+				Description: "Unique identifier for the organisation",
+			},
 			"name": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "Organisation's name",
-			},
-			"id": &graphql.Field{
-				Type:        graphql.NewNonNull(graphql.String),
-				Description: "Unique identifier for the organisation",
 			},
 		},
 	})
@@ -28,7 +28,7 @@ func (v *v1) initSchemaTypes() {
 		Description: "The interface satisfied by all question types",
 		Fields: graphql.Fields{
 			"id": &graphql.Field{
-				Type:        graphql.NewNonNull(graphql.String),
+				Type:        graphql.NewNonNull(graphql.ID),
 				Description: "Unique ID for the question",
 			},
 			"question": &graphql.Field{
@@ -62,7 +62,7 @@ func (v *v1) initSchemaTypes() {
 		},
 		Fields: graphql.Fields{
 			"id": &graphql.Field{
-				Type:        graphql.NewNonNull(graphql.String),
+				Type:        graphql.NewNonNull(graphql.ID),
 				Description: "Unique ID for the question",
 			},
 			"question": &graphql.Field{
@@ -157,7 +157,7 @@ func (v *v1) initSchemaTypes() {
 		Description: "A set of questions to determine outcomes",
 		Fields: graphql.Fields{
 			"id": &graphql.Field{
-				Type:        graphql.NewNonNull(graphql.String),
+				Type:        graphql.NewNonNull(graphql.ID),
 				Description: "Unique ID",
 			},
 			"organisationID": &graphql.Field{
@@ -255,7 +255,7 @@ func (v *v1) initSchemaTypes() {
 		Description: "A set of answers for an outcome set",
 		Fields: graphql.Fields{
 			"id": &graphql.Field{
-				Type:        graphql.NewNonNull(graphql.String),
+				Type:        graphql.NewNonNull(graphql.ID),
 				Description: "Unique ID for the meeting",
 			},
 			"beneficiary": &graphql.Field{
