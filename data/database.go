@@ -20,6 +20,7 @@ func (nf *notFound) Error() string {
 }
 
 type Base interface {
+	NewOutcomeSet(name, description string, u auth.User) (*impact.OutcomeSet, error)
 	GetOutcomeSet(id string, u auth.User) (*impact.OutcomeSet, error)
 	GetOutcomeSets(u auth.User) ([]impact.OutcomeSet, error)
 	GetQuestion(outcomeSetID string, questionID string, u auth.User) (*impact.Question, error)

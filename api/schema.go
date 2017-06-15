@@ -75,20 +75,33 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 	mutationType := graphql.NewObject(graphql.ObjectConfig{
 		Name: "Mutation",
 		Fields: graphql.Fields{
+			//"AddQuestion",
+			//"EditQuestion",
+			//"DeleteQuestion",
 			"AddOutcomeSet": &graphql.Field{
 				Type:        v.outcomeSetType,
-				Description: "Create an outcomeset",
+				Description: "Create a new outcomeset",
 				Args: graphql.FieldConfigArgument{
-					"outcomesetIn": &graphql.ArgumentConfig{
-						Type:        v.outcomeSetInputType,
-						Description: "The new outcomeset",
+					"name": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String),
+						Description: "The name of the outcomeset",
+					},
+					"description": &graphql.ArgumentConfig{
+						Type: graphql.String,
+						Description: "An optional description",
 					},
 				},
 				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
-					os := p.Args["outcomesetIn"].(map[string]interface{})
-					return v.db.GetOutcomeSet(os["organisation"].(string), u)
+					name := p.Args["name"].(string)
+					description := p.Args["description"].(string)
+					return v.db.NewOutcomeSet(name, description, u)
 				}),
 			},
+			//"EditOutcomeSet",
+			//"DeleteOutcomeSet",
+			//"AddMeeting",
+			//"EditMeeting",
+			//"DeleteMeeting",
 		},
 	})
 

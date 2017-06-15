@@ -6,6 +6,7 @@ import (
 	"github.com/impactasaurus/server/data"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	uuid "github.com/satori/go.uuid"
 )
 
 func (m *mongo) GetOutcomeSet(id string, u auth.User) (*impact.OutcomeSet, error) {
@@ -59,4 +60,29 @@ func (m *mongo) GetQuestion(outcomeSetID string, questionID string, u auth.User)
 		}
 	}
 	return nil, &data.NotFound{}
+}
+
+func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (*impact.OutcomeSet, error) {
+	userOrg, err := u.Organisation()
+	if err != nil {
+		return nil, err
+	}
+
+	id := uuid.NewV4()
+
+	newOS := &impact.OutcomeSet{
+		ID: id.String(),
+		Deleted: false,
+		Description: description,
+		Name: name,
+		OrganisationID: userOrg,
+	}
+
+	col, closer := m.getOutcomeCollection()
+	defer closer()
+	if err := col.Insert(newOS); err != nil {
+		return nil, err
+	}
+	return m.GetOutcomeSet(id.String(), u)
+
 }

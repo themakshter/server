@@ -198,25 +198,6 @@ func (v *v1) initSchemaTypes() {
 		},
 	})
 
-	v.outcomeSetInputType = graphql.NewInputObject(graphql.InputObjectConfig{
-		Name: "OutcomeSetInput",
-		Fields: graphql.InputObjectConfigFieldMap{
-			"organisationID": &graphql.InputObjectFieldConfig{
-				Type:        graphql.NewNonNull(graphql.String),
-				Description: "The ID of the owning organisation of the outcome set",
-			},
-			"name": &graphql.InputObjectFieldConfig{
-				Type:        graphql.NewNonNull(graphql.String),
-				Description: "Name of the outcome set",
-			},
-			"description": &graphql.InputObjectFieldConfig{
-				Type:        graphql.String,
-				Description: "Information about the outcome set",
-			},
-		},
-		Description: "A definition of a new outcomeset",
-	})
-
 	v.answerInterface = graphql.NewInterface(graphql.InterfaceConfig{
 		Name:        "AnswerInterface",
 		Description: "The interface satisfied by all answer types",

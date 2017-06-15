@@ -13,7 +13,6 @@ type v1 struct {
 	questionInterface   *graphql.Interface
 	likertScale         *graphql.Object
 	outcomeSetType      *graphql.Object
-	outcomeSetInputType *graphql.InputObject
 
 	answerInterface *graphql.Interface
 	numericAnswer   *graphql.Object
