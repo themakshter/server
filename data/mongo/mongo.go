@@ -41,7 +41,6 @@ func (m *mongo) ensureIndexes() error {
 
 	if err := osCol.EnsureIndex(mgo.Index{
 		Key:    []string{"organisationID", "name"},
-		Unique: true,
 	}); err != nil {
 		return err
 	}

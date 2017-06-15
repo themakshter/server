@@ -7,6 +7,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	uuid "github.com/satori/go.uuid"
+	"errors"
 )
 
 func (m *mongo) GetOutcomeSet(id string, u auth.User) (*impact.OutcomeSet, error) {
@@ -69,6 +70,21 @@ func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (*impact.Ou
 		return nil, err
 	}
 
+	col, closer := m.getOutcomeCollection()
+	defer closer()
+
+	existing, err := col.Find(bson.M{
+		"name": name,
+		"organisationID": userOrg,
+		"deleted": false,
+	}).Count()
+	if err != nil {
+		return nil, err
+	}
+	if existing != 0 {
+		return nil, errors.New("Name already in use")
+	}
+
 	id := uuid.NewV4()
 
 	newOS := &impact.OutcomeSet{
@@ -78,9 +94,6 @@ func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (*impact.Ou
 		Name: name,
 		OrganisationID: userOrg,
 	}
-
-	col, closer := m.getOutcomeCollection()
-	defer closer()
 	if err := col.Insert(newOS); err != nil {
 		return nil, err
 	}
