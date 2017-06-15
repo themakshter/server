@@ -16,11 +16,12 @@ func NewNotFoundError(thing string) error {
 }
 
 func (nf *notFound) Error() string {
-	return fmt.Sprintf("%s not Found", nf.thing)
+	return fmt.Sprintf("%s not found", nf.thing)
 }
 
 type Base interface {
 	NewOutcomeSet(name, description string, u auth.User) (*impact.OutcomeSet, error)
+	EditOutcomeSet(id, name, description string, u auth.User) (*impact.OutcomeSet, error)
 	GetOutcomeSet(id string, u auth.User) (*impact.OutcomeSet, error)
 	GetOutcomeSets(u auth.User) ([]impact.OutcomeSet, error)
 	GetQuestion(outcomeSetID string, questionID string, u auth.User) (*impact.Question, error)

@@ -84,5 +84,28 @@ func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (*impact.Ou
 		return nil, err
 	}
 	return m.GetOutcomeSet(id.String(), u)
+}
 
+func (m *mongo) EditOutcomeSet(id, name, description string, u auth.User) (*impact.OutcomeSet, error) {
+	userOrg, err := u.Organisation()
+	if err != nil {
+		return nil, err
+	}
+
+	col, closer := m.getOutcomeCollection()
+	defer closer()
+
+	if err = col.Update(bson.M{
+		"_id": id,
+		"organisationID": userOrg,
+	}, bson.M{
+		"$set": bson.M{
+			"name": name,
+			"description": description,
+		},
+	}); err != nil {
+		return nil, err
+	}
+
+	return m.GetOutcomeSet(id, u)
 }

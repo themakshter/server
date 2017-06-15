@@ -93,11 +93,42 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 				},
 				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
 					name := p.Args["name"].(string)
-					description := p.Args["description"].(string)
+					description := ""
+					descriptionRaw := p.Args["description"]
+					if descriptionRaw != nil {
+						description = descriptionRaw.(string)
+					}
 					return v.db.NewOutcomeSet(name, description, u)
 				}),
 			},
-			//"EditOutcomeSet",
+			"EditOutcomeSet": &graphql.Field{
+				Type:        v.outcomeSetType,
+				Description: "Edit an outcomeset",
+				Args: graphql.FieldConfigArgument{
+					"outcomeSetID": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String),
+						Description: "The ID of the outcomeset",
+					},
+					"name": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String),
+						Description: "The new name to apply to the outcomeset",
+					},
+					"description": &graphql.ArgumentConfig{
+						Type: graphql.String,
+						Description: "The new description to apply to the outcomeset, if left null, any existing description will be removed",
+					},
+				},
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+					id := p.Args["outcomeSetID"].(string)
+					name := p.Args["name"].(string)
+					description := ""
+					descriptionRaw := p.Args["description"]
+					if descriptionRaw != nil {
+						description = descriptionRaw.(string)
+					}
+					return v.db.EditOutcomeSet(id, name, description, u)
+				}),
+			},
 			//"DeleteOutcomeSet",
 			//"AddMeeting",
 			//"EditMeeting",
