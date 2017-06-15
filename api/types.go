@@ -35,10 +35,6 @@ func (v *v1) initSchemaTypes() {
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "The question",
 			},
-			"deleted": &graphql.Field{
-				Type:        graphql.NewNonNull(graphql.Boolean),
-				Description: "Whether the question has been deleted",
-			},
 		},
 		ResolveType: func(p graphql.ResolveTypeParams) *graphql.Object {
 			obj, ok := p.Value.(impact.Question)
@@ -68,10 +64,6 @@ func (v *v1) initSchemaTypes() {
 			"question": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "The question",
-			},
-			"deleted": &graphql.Field{
-				Type:        graphql.NewNonNull(graphql.Boolean),
-				Description: "Whether the question has been deleted",
 			},
 			"minValue": &graphql.Field{
 				Type:        graphql.Int,

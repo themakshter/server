@@ -10,6 +10,17 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+func filterOutDeletedQuestions(os *impact.OutcomeSet) *impact.OutcomeSet {
+	newQs := make([]impact.Question, 0, len(os.Questions))
+	for _, q := range os.Questions {
+		if !q.Deleted {
+			newQs = append(newQs, q)
+		}
+	}
+	os.Questions = newQs
+	return os
+}
+
 func (m *mongo) GetOutcomeSet(id string, u auth.User) (*impact.OutcomeSet, error) {
 	col, closer := m.getOutcomeCollection()
 	defer closer()
@@ -30,7 +41,7 @@ func (m *mongo) GetOutcomeSet(id string, u auth.User) (*impact.OutcomeSet, error
 		}
 		return nil, err
 	}
-	return os, nil
+	return filterOutDeletedQuestions(os), nil
 }
 
 func (m *mongo) GetOutcomeSets(u auth.User) ([]impact.OutcomeSet, error) {
@@ -47,6 +58,11 @@ func (m *mongo) GetOutcomeSets(u auth.User) ([]impact.OutcomeSet, error) {
 		"organisationID": userOrg,
 		"deleted":        false,
 	}).All(&results)
+
+	for idx, os := range results {
+		results[idx] = *filterOutDeletedQuestions(&os)
+	}
+
 	return results, err
 }
 
