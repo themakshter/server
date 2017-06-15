@@ -1,13 +1,13 @@
 package mongo
 
 import (
+	"errors"
 	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
 	"github.com/impactasaurus/server/data"
+	uuid "github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	uuid "github.com/satori/go.uuid"
-	"errors"
 )
 
 func (m *mongo) GetOutcomeSet(id string, u auth.User) (*impact.OutcomeSet, error) {
@@ -21,7 +21,7 @@ func (m *mongo) GetOutcomeSet(id string, u auth.User) (*impact.OutcomeSet, error
 
 	os := &impact.OutcomeSet{}
 	err = col.Find(bson.M{
-		"_id": id,
+		"_id":            id,
 		"organisationID": userOrg,
 	}).One(os)
 	if err != nil {
@@ -45,23 +45,9 @@ func (m *mongo) GetOutcomeSets(u auth.User) ([]impact.OutcomeSet, error) {
 	results := []impact.OutcomeSet{}
 	err = col.Find(bson.M{
 		"organisationID": userOrg,
-		"deleted": false,
+		"deleted":        false,
 	}).All(&results)
 	return results, err
-}
-
-func (m *mongo) GetQuestion(outcomeSetID string, questionID string, u auth.User) (*impact.Question, error) {
-	os, err := m.GetOutcomeSet(outcomeSetID, u)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, q := range os.Questions {
-		if q.ID == questionID {
-			return &q, nil
-		}
-	}
-	return nil, data.NewNotFoundError("Question")
 }
 
 func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (*impact.OutcomeSet, error) {
@@ -74,9 +60,9 @@ func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (*impact.Ou
 	defer closer()
 
 	existing, err := col.Find(bson.M{
-		"name": name,
+		"name":           name,
 		"organisationID": userOrg,
-		"deleted": false,
+		"deleted":        false,
 	}).Count()
 	if err != nil {
 		return nil, err
@@ -88,10 +74,10 @@ func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (*impact.Ou
 	id := uuid.NewV4()
 
 	newOS := &impact.OutcomeSet{
-		ID: id.String(),
-		Deleted: false,
-		Description: description,
-		Name: name,
+		ID:             id.String(),
+		Deleted:        false,
+		Description:    description,
+		Name:           name,
 		OrganisationID: userOrg,
 	}
 	if err := col.Insert(newOS); err != nil {
@@ -110,11 +96,11 @@ func (m *mongo) EditOutcomeSet(id, name, description string, u auth.User) (*impa
 	defer closer()
 
 	if err = col.Update(bson.M{
-		"_id": id,
+		"_id":            id,
 		"organisationID": userOrg,
 	}, bson.M{
 		"$set": bson.M{
-			"name": name,
+			"name":        name,
 			"description": description,
 		},
 	}); err != nil {
@@ -124,7 +110,7 @@ func (m *mongo) EditOutcomeSet(id, name, description string, u auth.User) (*impa
 	return m.GetOutcomeSet(id, u)
 }
 
-func (m *mongo) DeleteOutcomeSet(id string, u auth.User) (error) {
+func (m *mongo) DeleteOutcomeSet(id string, u auth.User) error {
 	userOrg, err := u.Organisation()
 	if err != nil {
 		return err
@@ -134,7 +120,7 @@ func (m *mongo) DeleteOutcomeSet(id string, u auth.User) (error) {
 	defer closer()
 
 	return col.Update(bson.M{
-		"_id": id,
+		"_id":            id,
 		"organisationID": userOrg,
 	}, bson.M{
 		"$set": bson.M{

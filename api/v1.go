@@ -10,9 +10,9 @@ import (
 type v1 struct {
 	db data.Base
 
-	questionInterface   *graphql.Interface
-	likertScale         *graphql.Object
-	outcomeSetType      *graphql.Object
+	questionInterface *graphql.Interface
+	likertScale       *graphql.Object
+	outcomeSetType    *graphql.Object
 
 	answerInterface *graphql.Interface
 	numericAnswer   *graphql.Object
