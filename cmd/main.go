@@ -24,6 +24,7 @@ func main() {
 
 	cors := corsLib.New(corsLib.Options{
 		AllowCredentials: true,
+		AllowedHeaders: []string{"Authorization", "Content-Type"},
 	})
 	http.Handle("/v1/graphql", cors.Handler(auth.Middleware(v1Handler)))
 
