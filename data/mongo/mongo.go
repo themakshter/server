@@ -36,5 +36,15 @@ func New(hostname string, port int, database, user, password string) (data.Base,
 }
 
 func (m *mongo) ensureIndexes() error {
+	osCol, osCloser := m.getOutcomeCollection()
+	defer osCloser()
+
+	if err := osCol.EnsureIndex(mgo.Index{
+		Key:    []string{"organisationID", "name"},
+		Unique: true,
+	}); err != nil {
+		return err
+	}
+
 	return nil
 }
