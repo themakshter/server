@@ -59,7 +59,7 @@ func (m *mongo) GetQuestion(outcomeSetID string, questionID string, u auth.User)
 			return &q, nil
 		}
 	}
-	return nil, &data.NotFound{}
+	return nil, data.NewNotFoundError("Question")
 }
 
 func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (*impact.OutcomeSet, error) {
