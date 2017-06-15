@@ -24,7 +24,7 @@ func (m *mongo) GetMeeting(id string, u auth.User) (*impact.Meeting, error) {
 	}).One(meeting)
 	if err != nil {
 		if mgo.ErrNotFound == err {
-			return nil, &data.NotFound{}
+			return nil, data.NewNotFoundError("Meeting")
 		}
 		return nil, err
 	}

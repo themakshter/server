@@ -24,7 +24,7 @@ func (m *mongo) GetOutcomeSet(id string, u auth.User) (*impact.OutcomeSet, error
 	}).One(os)
 	if err != nil {
 		if mgo.ErrNotFound == err {
-			return nil, &data.NotFound{}
+			return nil, data.NewNotFoundError("Outcome Set")
 		}
 		return nil, err
 	}

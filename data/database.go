@@ -3,14 +3,20 @@ package data
 import (
 	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
+	"fmt"
 )
 
 // NotFound is an error struct to be used when request to fetch / update / delete an individual element fails because the element does not exist.
-type NotFound struct {
+type notFound struct {
+	thing string
 }
 
-func (*NotFound) Error() string {
-	return "Not Found"
+func NewNotFoundError(thing string) error {
+	return &notFound{thing}
+}
+
+func (nf *notFound) Error() string {
+	return fmt.Sprintf("%s not Found", nf.thing)
 }
 
 type Base interface {

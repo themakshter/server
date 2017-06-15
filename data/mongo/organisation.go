@@ -25,7 +25,7 @@ func (m *mongo) GetOrganisation(id string, u auth.User) (*impact.Organisation, e
 	err = col.FindId(id).One(org)
 	if err != nil {
 		if mgo.ErrNotFound == err {
-			return nil, &data.NotFound{}
+			return nil, data.NewNotFoundError("Organisation")
 		}
 		return nil, err
 	}
