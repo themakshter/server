@@ -44,6 +44,7 @@ func (m *mongo) GetOutcomeSets(u auth.User) ([]impact.OutcomeSet, error) {
 	results := []impact.OutcomeSet{}
 	err = col.Find(bson.M{
 		"organisationID": userOrg,
+		"deleted": false,
 	}).All(&results)
 	return results, err
 }
@@ -108,4 +109,23 @@ func (m *mongo) EditOutcomeSet(id, name, description string, u auth.User) (*impa
 	}
 
 	return m.GetOutcomeSet(id, u)
+}
+
+func (m *mongo) DeleteOutcomeSet(id string, u auth.User) (error) {
+	userOrg, err := u.Organisation()
+	if err != nil {
+		return err
+	}
+
+	col, closer := m.getOutcomeCollection()
+	defer closer()
+
+	return col.Update(bson.M{
+		"_id": id,
+		"organisationID": userOrg,
+	}, bson.M{
+		"$set": bson.M{
+			"deleted": true,
+		},
+	})
 }

@@ -24,6 +24,8 @@ type Base interface {
 	EditOutcomeSet(id, name, description string, u auth.User) (*impact.OutcomeSet, error)
 	GetOutcomeSet(id string, u auth.User) (*impact.OutcomeSet, error)
 	GetOutcomeSets(u auth.User) ([]impact.OutcomeSet, error)
+	DeleteOutcomeSet(id string, u auth.User) (error)
+
 	GetQuestion(outcomeSetID string, questionID string, u auth.User) (*impact.Question, error)
 
 	GetOrganisation(id string, u auth.User) (*impact.Organisation, error)

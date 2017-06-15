@@ -129,7 +129,23 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 					return v.db.EditOutcomeSet(id, name, description, u)
 				}),
 			},
-			//"DeleteOutcomeSet",
+			"DeleteOutcomeSet": &graphql.Field{
+				Type:        graphql.ID,
+				Description: "Deletes an outcomeset and returns the ID of the deleted outcomeset",
+				Args: graphql.FieldConfigArgument{
+					"outcomeSetID": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.ID),
+						Description: "The ID of the outcomeset",
+					},
+				},
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+					id := p.Args["outcomeSetID"].(string)
+					if err := v.db.DeleteOutcomeSet(id, u); err != nil {
+						return nil, err
+					}
+					return id, nil
+				}),
+			},
 			//"AddMeeting",
 			//"EditMeeting",
 			//"DeleteMeeting",
