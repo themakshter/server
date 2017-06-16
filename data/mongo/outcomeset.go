@@ -10,7 +10,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func filterOutDeletedQuestions(os *impact.OutcomeSet) *impact.OutcomeSet {
+func filterOutDeletedQuestions(os impact.OutcomeSet) impact.OutcomeSet {
 	newQs := make([]impact.Question, 0, len(os.Questions))
 	for _, q := range os.Questions {
 		if !q.Deleted {
@@ -21,25 +21,26 @@ func filterOutDeletedQuestions(os *impact.OutcomeSet) *impact.OutcomeSet {
 	return os
 }
 
-func (m *mongo) GetOutcomeSet(id string, u auth.User) (*impact.OutcomeSet, error) {
+func (m *mongo) GetOutcomeSet(id string, u auth.User) (impact.OutcomeSet, error) {
+	os := impact.OutcomeSet{}
+
 	col, closer := m.getOutcomeCollection()
 	defer closer()
 
 	userOrg, err := u.Organisation()
 	if err != nil {
-		return nil, err
+		return os, err
 	}
 
-	os := &impact.OutcomeSet{}
 	err = col.Find(bson.M{
 		"_id":            id,
 		"organisationID": userOrg,
-	}).One(os)
+	}).One(&os)
 	if err != nil {
 		if mgo.ErrNotFound == err {
-			return nil, data.NewNotFoundError("Outcome Set")
+			return os, data.NewNotFoundError("Outcome Set")
 		}
-		return nil, err
+		return os, err
 	}
 	return filterOutDeletedQuestions(os), nil
 }
@@ -60,16 +61,16 @@ func (m *mongo) GetOutcomeSets(u auth.User) ([]impact.OutcomeSet, error) {
 	}).All(&results)
 
 	for idx, os := range results {
-		results[idx] = *filterOutDeletedQuestions(&os)
+		results[idx] = filterOutDeletedQuestions(os)
 	}
 
 	return results, err
 }
 
-func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (*impact.OutcomeSet, error) {
+func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (impact.OutcomeSet, error) {
 	userOrg, err := u.Organisation()
 	if err != nil {
-		return nil, err
+		return impact.OutcomeSet{}, err
 	}
 
 	col, closer := m.getOutcomeCollection()
@@ -81,15 +82,15 @@ func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (*impact.Ou
 		"deleted":        false,
 	}).Count()
 	if err != nil {
-		return nil, err
+		return impact.OutcomeSet{}, err
 	}
 	if existing != 0 {
-		return nil, errors.New("Name already in use")
+		return impact.OutcomeSet{}, errors.New("Name already in use")
 	}
 
 	id := uuid.NewV4()
 
-	newOS := &impact.OutcomeSet{
+	newOS := impact.OutcomeSet{
 		ID:             id.String(),
 		Deleted:        false,
 		Description:    description,
@@ -97,15 +98,15 @@ func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (*impact.Ou
 		OrganisationID: userOrg,
 	}
 	if err := col.Insert(newOS); err != nil {
-		return nil, err
+		return impact.OutcomeSet{}, err
 	}
 	return m.GetOutcomeSet(id.String(), u)
 }
 
-func (m *mongo) EditOutcomeSet(id, name, description string, u auth.User) (*impact.OutcomeSet, error) {
+func (m *mongo) EditOutcomeSet(id, name, description string, u auth.User) (impact.OutcomeSet, error) {
 	userOrg, err := u.Organisation()
 	if err != nil {
-		return nil, err
+		return impact.OutcomeSet{}, err
 	}
 
 	col, closer := m.getOutcomeCollection()
@@ -120,7 +121,7 @@ func (m *mongo) EditOutcomeSet(id, name, description string, u auth.User) (*impa
 			"description": description,
 		},
 	}); err != nil {
-		return nil, err
+		return impact.OutcomeSet{}, err
 	}
 
 	return m.GetOutcomeSet(id, u)

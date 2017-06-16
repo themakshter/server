@@ -8,26 +8,27 @@ import (
 	"errors"
 )
 
-func (m *mongo) GetOrganisation(id string, u auth.User) (*impact.Organisation, error) {
+func (m *mongo) GetOrganisation(id string, u auth.User) (impact.Organisation, error) {
+	org := impact.Organisation{}
+
 	col, closer := m.getOrganisationCollection()
 	defer closer()
 
 	userOrg, err := u.Organisation()
 	if err != nil {
-		return nil, err
+		return org, err
 	}
 
 	if id != userOrg {
-		return nil, errors.New("User does not have permission to view this organisation")
+		return org, errors.New("User does not have permission to view this organisation")
 	}
 
-	org := &impact.Organisation{}
-	err = col.FindId(id).One(org)
+	err = col.FindId(id).One(&org)
 	if err != nil {
 		if mgo.ErrNotFound == err {
-			return nil, data.NewNotFoundError("Organisation")
+			return org, data.NewNotFoundError("Organisation")
 		}
-		return nil, err
+		return org, err
 	}
 	return org, nil
 }

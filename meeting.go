@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-const NUMERIC = "numeric"
+const INT = "int"
 
 type Answer struct {
 	QuestionID string      `json:"questionID" bson:"questionID"`

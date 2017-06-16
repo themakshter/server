@@ -4,6 +4,7 @@ import (
 	"github.com/graphql-go/graphql"
 	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
+	"time"
 )
 
 func (v *v1) getSchema() (*graphql.Schema, error) {
@@ -205,8 +206,62 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 					return v.db.GetOutcomeSet(outcomeSetID, u)
 				}),
 			},
-			//"AddMeeting",
-			//"EditMeeting",
+			"AddMeeting": &graphql.Field{
+				Type:        v.meetingType,
+				Description: "Create a new meeting",
+				Args: graphql.FieldConfigArgument{
+					"beneficiaryID": &graphql.ArgumentConfig{
+						Type:        graphql.NewNonNull(graphql.String),
+						Description: "The ID associated with the beneficiary being interviewed",
+					},
+					"outcomeSetID": &graphql.ArgumentConfig{
+						Type:        graphql.NewNonNull(graphql.String),
+						Description: "The ID of the outcome set being used",
+					},
+					"conducted": &graphql.ArgumentConfig{
+						Type:        graphql.NewNonNull(graphql.String),
+						Description: "The time and date when the meeting was conducted. Should be ISO standard timestamp",
+					},
+				},
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+					beneficiaryID := p.Args["beneficiaryID"].(string)
+					outcomeSetID := p.Args["outcomeSetID"].(string)
+					conducted := p.Args["conducted"].(string)
+					parsedConducted, err := time.Parse(time.RFC3339, conducted)
+					if err != nil {
+						return nil, err
+					}
+					return v.db.NewMeeting(beneficiaryID, outcomeSetID, parsedConducted, u)
+				}),
+			},
+			"AddLikertAnswer": &graphql.Field{
+				Type:        v.meetingType,
+				Description: "Provide an answer for a Likert Scale question",
+				Args: graphql.FieldConfigArgument{
+					"meetingID": &graphql.ArgumentConfig{
+						Type:        graphql.NewNonNull(graphql.String),
+						Description: "The ID of the meeting the answer is associated with",
+					},
+					"questionID": &graphql.ArgumentConfig{
+						Type:        graphql.NewNonNull(graphql.String),
+						Description: "The ID of the question being answered",
+					},
+					"value": &graphql.ArgumentConfig{
+						Type:        graphql.NewNonNull(graphql.Int),
+						Description: "The value given for the particular likert scale",
+					},
+				},
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+					meetingID := p.Args["meetingID"].(string)
+					questionID := p.Args["questionID"].(string)
+					value := p.Args["value"].(int)
+					return v.db.NewAnswer(meetingID, impact.Answer{
+						QuestionID: questionID,
+						Type:       impact.INT,
+						Answer:     value,
+					}, u)
+				}),
+			},
 			//"DeleteMeeting",
 		},
 	})
@@ -216,7 +271,7 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 		Mutation: mutationType,
 		Types: []graphql.Type{
 			v.likertScale,
-			v.numericAnswer,
+			v.intAnswer,
 		},
 	})
 	if err != nil {

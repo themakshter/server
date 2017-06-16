@@ -8,24 +8,24 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func (m *mongo) GetQuestion(outcomeSetID string, questionID string, u auth.User) (*impact.Question, error) {
+func (m *mongo) GetQuestion(outcomeSetID string, questionID string, u auth.User) (impact.Question, error) {
 	os, err := m.GetOutcomeSet(outcomeSetID, u)
 	if err != nil {
-		return nil, err
+		return impact.Question{}, err
 	}
 
 	for _, q := range os.Questions {
 		if q.ID == questionID {
-			return &q, nil
+			return q, nil
 		}
 	}
-	return nil, data.NewNotFoundError("Question")
+	return impact.Question{}, data.NewNotFoundError("Question")
 }
 
-func (m *mongo) NewQuestion(outcomeSetID, question, questionType string, options map[string]interface{}, u auth.User) (*impact.Question, error) {
+func (m *mongo) NewQuestion(outcomeSetID, question, questionType string, options map[string]interface{}, u auth.User) (impact.Question, error) {
 	userOrg, err := u.Organisation()
 	if err != nil {
-		return nil, err
+		return impact.Question{}, err
 	}
 
 	col, closer := m.getOutcomeCollection()
@@ -49,7 +49,7 @@ func (m *mongo) NewQuestion(outcomeSetID, question, questionType string, options
 			"questions": newQuestion,
 		},
 	}); err != nil {
-		return nil, err
+		return impact.Question{}, err
 	}
 
 	return m.GetQuestion(outcomeSetID, id.String(), u)
@@ -75,16 +75,16 @@ func (m *mongo) DeleteQuestion(outcomeSetID, questionID string, u auth.User) err
 	})
 }
 
-func (m *mongo) EditQuestion(outcomeSetID, questionID, question, questionType string, options map[string]interface{}, u auth.User) (*impact.Question, error) {
+func (m *mongo) EditQuestion(outcomeSetID, questionID, question, questionType string, options map[string]interface{}, u auth.User) (impact.Question, error) {
 	userOrg, err := u.Organisation()
 	if err != nil {
-		return nil, err
+		return impact.Question{}, err
 	}
 
 	col, closer := m.getOutcomeCollection()
 	defer closer()
 
-	newQ := &impact.Question{
+	newQ := impact.Question{
 		ID: questionID,
 		Question: question,
 		Type: questionType,
@@ -101,7 +101,7 @@ func (m *mongo) EditQuestion(outcomeSetID, questionID, question, questionType st
 			"questions.$": newQ,
 		},
 	}); err != nil {
-		return nil, err
+		return impact.Question{}, err
 	}
 	return newQ, nil
 }

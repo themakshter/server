@@ -5,6 +5,7 @@ import (
 	"github.com/graphql-go/graphql"
 	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
+	"time"
 )
 
 func (v *v1) initSchemaTypes() {
@@ -160,19 +161,11 @@ func (v *v1) initSchemaTypes() {
 				Type:        graphql.NewNonNull(v.organisationType),
 				Description: "The owning organisation of the outcome set",
 				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
-					var organisationID string
-					switch t := p.Source.(type) {
-					case *impact.OutcomeSet:
-						organisationID = t.OrganisationID
-					case impact.OutcomeSet:
-						organisationID = t.OrganisationID
-					default:
-						return nil, errors.New("Expected an OutcomeSet when resolving Organisation")
+					obj, ok := p.Source.(impact.OutcomeSet)
+					if !ok {
+						return nil, errors.New("Expecting an impact.Meeting")
 					}
-					if organisationID == "" {
-						return nil, errors.New("Organisation ID is missing on OutcomeSet")
-					}
-					return v.db.GetOrganisation(organisationID, u)
+					return v.db.GetOrganisation(obj.OrganisationID, u)
 				}),
 			},
 			"name": &graphql.Field{
@@ -202,20 +195,20 @@ func (v *v1) initSchemaTypes() {
 		ResolveType: func(p graphql.ResolveTypeParams) *graphql.Object {
 			obj, ok := p.Value.(impact.Answer)
 			if !ok {
-				return v.numericAnswer
+				return v.intAnswer
 			}
 			switch obj.Type {
-			case impact.NUMERIC:
-				return v.numericAnswer
+			case impact.INT:
+				return v.intAnswer
 			default:
-				return v.numericAnswer
+				return v.intAnswer
 			}
 		},
 	})
 
-	v.numericAnswer = graphql.NewObject(graphql.ObjectConfig{
-		Name:        "NumericAnswer",
-		Description: "Answer containing numeric value",
+	v.intAnswer = graphql.NewObject(graphql.ObjectConfig{
+		Name:        "IntAnswer",
+		Description: "Answer containing an integer value",
 		Interfaces: []*graphql.Interface{
 			v.answerInterface,
 		},
@@ -225,16 +218,16 @@ func (v *v1) initSchemaTypes() {
 				Description: "The ID of the question answered",
 			},
 			"answer": &graphql.Field{
-				Type:        graphql.NewNonNull(graphql.Float),
-				Description: "The provided numeric answer",
+				Type:        graphql.NewNonNull(graphql.Int),
+				Description: "The provided int answer",
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					obj, ok := p.Source.(impact.Answer)
 					if !ok {
 						return nil, errors.New("Expecting an impact.Answer")
 					}
-					num, ok := obj.Answer.(float64)
+					num, ok := obj.Answer.(int)
 					if !ok {
-						return nil, errors.New("Expected a numeric value")
+						return nil, errors.New("Expected an int value")
 					}
 					return num, nil
 				},
@@ -266,19 +259,11 @@ func (v *v1) initSchemaTypes() {
 				Type:        graphql.NewNonNull(v.outcomeSetType),
 				Description: "The outcome set answered",
 				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
-					var outcomeSetID string
-					switch t := p.Source.(type) {
-					case *impact.Meeting:
-						outcomeSetID = t.OutcomeSetID
-					case impact.Meeting:
-						outcomeSetID = t.OutcomeSetID
-					default:
-						return nil, errors.New("Expected an Meeting when resolving outcomeSet")
+					obj, ok := p.Source.(impact.Meeting)
+					if !ok {
+						return nil, errors.New("Expecting an impact.Meeting")
 					}
-					if outcomeSetID == "" {
-						return nil, errors.New("OutcomeSetID is missing on Meeting")
-					}
-					return v.db.GetOutcomeSet(outcomeSetID, u)
+					return v.db.GetOutcomeSet(obj.OutcomeSetID, u)
 				}),
 			},
 			"organisationID": &graphql.Field{
@@ -289,19 +274,11 @@ func (v *v1) initSchemaTypes() {
 				Type:        graphql.NewNonNull(v.organisationType),
 				Description: "The owning organisation of the outcome set",
 				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
-					var organisationID string
-					switch t := p.Source.(type) {
-					case *impact.Meeting:
-						organisationID = t.OrganisationID
-					case impact.Meeting:
-						organisationID = t.OrganisationID
-					default:
-						return nil, errors.New("Expected an Meeting when resolving Organisation")
+					obj, ok := p.Source.(impact.Meeting)
+					if !ok {
+						return nil, errors.New("Expecting an impact.Meeting")
 					}
-					if organisationID == "" {
-						return nil, errors.New("OrganisationID is missing on Meeting")
-					}
-					return v.db.GetOrganisation(organisationID, u)
+					return v.db.GetOrganisation(obj.OrganisationID, u)
 				}),
 			},
 			"answers": &graphql.Field{
@@ -311,14 +288,35 @@ func (v *v1) initSchemaTypes() {
 			"conducted": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "When the meeting was conducted",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					obj, ok := p.Source.(impact.Meeting)
+					if !ok {
+						return nil, errors.New("Expecting an impact.Meeting")
+					}
+					return obj.Conducted.Format(time.RFC3339), nil
+				},
 			},
 			"created": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "When the meeting was entered into the system",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					obj, ok := p.Source.(impact.Meeting)
+					if !ok {
+						return nil, errors.New("Expecting an impact.Meeting")
+					}
+					return obj.Created.Format(time.RFC3339), nil
+				},
 			},
 			"modified": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "When the meeting was last modified in the system",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					obj, ok := p.Source.(impact.Meeting)
+					if !ok {
+						return nil, errors.New("Expecting an impact.Meeting")
+					}
+					return obj.Modified.Format(time.RFC3339), nil
+				},
 			},
 		},
 	})
