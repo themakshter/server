@@ -1,0 +1,139 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "GXOurDGgsLmJs0wounpdWZZRSGw=",
+			"path": "github.com/dgrijalva/jwt-go",
+			"revision": "a539ee1a749a2b895533f979515ac7e6e0f5b650",
+			"revisionTime": "2017-06-08T00:51:49Z"
+		},
+		{
+			"checksumSHA1": "lHgtjrs/HC05haPekbAUOuQRYKA=",
+			"path": "github.com/graphql-go/graphql",
+			"revision": "fe52096df4714b0c66bd7921ade11c976acb51a2",
+			"revisionTime": "2017-05-13T03:04:51Z"
+		},
+		{
+			"checksumSHA1": "EYsvdu2FEkUZcai8y+nRsj3B5zA=",
+			"path": "github.com/graphql-go/graphql/gqlerrors",
+			"revision": "fe52096df4714b0c66bd7921ade11c976acb51a2",
+			"revisionTime": "2017-05-13T03:04:51Z"
+		},
+		{
+			"checksumSHA1": "t2SAPiaZ29ocFRyAPwV17OTccLE=",
+			"path": "github.com/graphql-go/graphql/language/ast",
+			"revision": "fe52096df4714b0c66bd7921ade11c976acb51a2",
+			"revisionTime": "2017-05-13T03:04:51Z"
+		},
+		{
+			"checksumSHA1": "FNFpZJ07U5Ud3MCc25ast14qVbo=",
+			"path": "github.com/graphql-go/graphql/language/kinds",
+			"revision": "fe52096df4714b0c66bd7921ade11c976acb51a2",
+			"revisionTime": "2017-05-13T03:04:51Z"
+		},
+		{
+			"checksumSHA1": "8prb7ZKM8a07/nduiBn9bjby6GI=",
+			"path": "github.com/graphql-go/graphql/language/lexer",
+			"revision": "fe52096df4714b0c66bd7921ade11c976acb51a2",
+			"revisionTime": "2017-05-13T03:04:51Z"
+		},
+		{
+			"checksumSHA1": "yskrC6tG5BTJdIk4GKHzGTenQOc=",
+			"path": "github.com/graphql-go/graphql/language/location",
+			"revision": "fe52096df4714b0c66bd7921ade11c976acb51a2",
+			"revisionTime": "2017-05-13T03:04:51Z"
+		},
+		{
+			"checksumSHA1": "eOtYOcF6kb2TeM8jRwbxbeJdT6E=",
+			"path": "github.com/graphql-go/graphql/language/parser",
+			"revision": "fe52096df4714b0c66bd7921ade11c976acb51a2",
+			"revisionTime": "2017-05-13T03:04:51Z"
+		},
+		{
+			"checksumSHA1": "vvZgiJe8nZ6r++mAFcgXw1O1+nE=",
+			"path": "github.com/graphql-go/graphql/language/printer",
+			"revision": "fe52096df4714b0c66bd7921ade11c976acb51a2",
+			"revisionTime": "2017-05-13T03:04:51Z"
+		},
+		{
+			"checksumSHA1": "dRrl/Ky/0NTYA3bZznpxp4tG5Jc=",
+			"path": "github.com/graphql-go/graphql/language/source",
+			"revision": "fe52096df4714b0c66bd7921ade11c976acb51a2",
+			"revisionTime": "2017-05-13T03:04:51Z"
+		},
+		{
+			"checksumSHA1": "f62XVj7So29WO/HJC6znxHbbeTs=",
+			"path": "github.com/graphql-go/graphql/language/typeInfo",
+			"revision": "fe52096df4714b0c66bd7921ade11c976acb51a2",
+			"revisionTime": "2017-05-13T03:04:51Z"
+		},
+		{
+			"checksumSHA1": "qeUIi6ohnCSBjL7lbvqPcc+L0Ig=",
+			"path": "github.com/graphql-go/graphql/language/visitor",
+			"revision": "fe52096df4714b0c66bd7921ade11c976acb51a2",
+			"revisionTime": "2017-05-13T03:04:51Z"
+		},
+		{
+			"checksumSHA1": "mgVNrH7wm4boQMaP+yUwteMQ22U=",
+			"path": "github.com/graphql-go/handler",
+			"revision": "07e3dd439c1f4ec14e685af7c48e8863bcc42c9d",
+			"revisionTime": "2017-02-23T05:03:44Z"
+		},
+		{
+			"checksumSHA1": "gWlw0l2wMBLhmejJCTr/Zywqyk8=",
+			"path": "github.com/kelseyhightower/envconfig",
+			"revision": "70f0258d44cbaa3b6a2581d82f58da01a38e4de4",
+			"revisionTime": "2017-05-23T19:07:22Z"
+		},
+		{
+			"checksumSHA1": "lZmPAbekxLbMFQirB/vzbdI+5O8=",
+			"path": "github.com/rs/cors",
+			"revision": "8dd4211afb5d08dbb39a533b9bb9e4b486351df6",
+			"revisionTime": "2017-06-08T16:51:55Z"
+		},
+		{
+			"checksumSHA1": "zmC8/3V4ls53DJlNTKDZwPSC/dA=",
+			"path": "github.com/satori/go.uuid",
+			"revision": "5bf94b69c6b68ee1b541973bb8e1144db23a194b",
+			"revisionTime": "2017-03-21T23:07:31Z"
+		},
+		{
+			"checksumSHA1": "Y+HGqEkYM15ir+J93MEaHdyFy0c=",
+			"path": "golang.org/x/net/context",
+			"revision": "973f3f3bbd50e92b13faa6c53ec16f49b45e851c",
+			"revisionTime": "2017-06-16T05:16:31Z"
+		},
+		{
+			"checksumSHA1": "1D8GzeoFGUs5FZOoyC2DpQg8c5Y=",
+			"path": "gopkg.in/mgo.v2",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"revisionTime": "2016-08-18T02:01:20Z"
+		},
+		{
+			"checksumSHA1": "YsB2DChSV9HxdzHaKATllAUKWSI=",
+			"path": "gopkg.in/mgo.v2/bson",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"revisionTime": "2016-08-18T02:01:20Z"
+		},
+		{
+			"checksumSHA1": "XQsrqoNT1U0KzLxOFcAZVvqhLfk=",
+			"path": "gopkg.in/mgo.v2/internal/json",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"revisionTime": "2016-08-18T02:01:20Z"
+		},
+		{
+			"checksumSHA1": "LEvMCnprte47qdAxWvQ/zRxVF1U=",
+			"path": "gopkg.in/mgo.v2/internal/sasl",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"revisionTime": "2016-08-18T02:01:20Z"
+		},
+		{
+			"checksumSHA1": "+1WDRPaOphSCmRMxVPIPBV4aubc=",
+			"path": "gopkg.in/mgo.v2/internal/scram",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"revisionTime": "2016-08-18T02:01:20Z"
+		}
+	],
+	"rootPath": "github.com/impactasaurus/server"
+}
