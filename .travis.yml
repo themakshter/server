@@ -1,0 +1,11 @@
+language: go
+go:
+- '1.8'
+deploy:
+  provider: heroku
+  api_key:
+    secure: N55yoc/lkJstwCz8apwz8Zx3StnKU4lpnjtIHkRLtVDwQBfhqoo26VjQyZANmPBEuz87rwenclFIeUNHP/4Tt61XrvO6h34KJ/dNKBg96GAJ0lTbGJn599EzYj8zaWMtbDtG2d4ZSMp3WG1kyFmQF0NslJpf/lt0vLKq/gJJlQ2WCaQFF4cGvkeKhJ0oRU5I7gBW/pYMOtYCwANyAw0eM9lcSfH0OWWMdv4pzlSzm0HU5gCPdvTokU/NipTEXy0oEdhpgPi7eAAsJ3F1gcGro95gprPmlTymg9f1BNqrZ5nme64DMFFjhga/CfTlCCUPAaoUZMdxVY7EAIlcXloECHnko3hrB1uZzxZV4DTRlQErOe79N8ngPmwfCucoaEDouppw3rwNlOf1cuRa8vdA1WUHWuheeA8lc569Gz9DXaeioWP9XBKkYsLmzoZpcUST/KdYrnyDIwp/EaE68Q5DiG1R8f1yeDhV0H3DMWvD5V7rto3uRw4EpCIQruZ/8GPuLo/28E/7jBjb3RYJlpiReenXdfKRZ1ZdtUBQGyEoGB+eXkiyAm4LxwWlOdvXTh3Xw2ubZU+tLjsnATwF5lJT3C4z16WVZ89bSLF/wUejTFDW3Q8HmJGhgXYWHZNQRY1TAbcfQEYUiE0dns8eXNGmk0SHk2p3k3cq9dijGQ3kq7Q=
+  app: impact-server
+  on:
+    repo: impactasaurus/server
+    branch: master
