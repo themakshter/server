@@ -15,8 +15,13 @@ type configMongo struct {
 	Database string `envconfig:"MONGO_DB" required:"true"`
 }
 
+type configNetwork struct {
+	Port int `envconfig:"PORT" default:"80"`
+}
+
 type config struct {
 	Mongo configMongo
+	Network configNetwork
 }
 
 func mustGetConfiguration() *config {

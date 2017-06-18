@@ -7,6 +7,7 @@ import (
 	"github.com/impactasaurus/server/auth"
 	"github.com/impactasaurus/server/data/mongo"
 	corsLib "github.com/rs/cors"
+	"strconv"
 )
 
 func main() {
@@ -28,5 +29,5 @@ func main() {
 	})
 	http.Handle("/v1/graphql", cors.Handler(auth.Middleware(v1Handler)))
 
-	http.ListenAndServe(":80", nil)
+	http.ListenAndServe(":" + strconv.Itoa(c.Network.Port), nil)
 }
