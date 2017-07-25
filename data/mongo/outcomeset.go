@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"errors"
+
 	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
 	"github.com/impactasaurus/server/data"
@@ -9,17 +10,6 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
-
-func filterOutDeletedQuestions(os impact.OutcomeSet) impact.OutcomeSet {
-	newQs := make([]impact.Question, 0, len(os.Questions))
-	for _, q := range os.Questions {
-		if !q.Deleted {
-			newQs = append(newQs, q)
-		}
-	}
-	os.Questions = newQs
-	return os
-}
 
 func (m *mongo) GetOutcomeSet(id string, u auth.User) (impact.OutcomeSet, error) {
 	os := impact.OutcomeSet{}
@@ -42,7 +32,7 @@ func (m *mongo) GetOutcomeSet(id string, u auth.User) (impact.OutcomeSet, error)
 		}
 		return os, err
 	}
-	return filterOutDeletedQuestions(os), nil
+	return os, nil
 }
 
 func (m *mongo) GetOutcomeSets(u auth.User) ([]impact.OutcomeSet, error) {
@@ -59,10 +49,6 @@ func (m *mongo) GetOutcomeSets(u auth.User) ([]impact.OutcomeSet, error) {
 		"organisationID": userOrg,
 		"deleted":        false,
 	}).All(&results)
-
-	for idx, os := range results {
-		results[idx] = filterOutDeletedQuestions(os)
-	}
 
 	return results, err
 }
