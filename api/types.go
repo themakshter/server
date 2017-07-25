@@ -2,10 +2,11 @@ package api
 
 import (
 	"errors"
+	"time"
+
 	"github.com/graphql-go/graphql"
 	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
-	"time"
 )
 
 func (v *v1) initSchemaTypes() {
@@ -35,6 +36,10 @@ func (v *v1) initSchemaTypes() {
 			"question": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "The question",
+			},
+			"archived": &graphql.Field{
+				Type:        graphql.Boolean,
+				Description: "Whether the question has been archived",
 			},
 		},
 		ResolveType: func(p graphql.ResolveTypeParams) *graphql.Object {
@@ -66,6 +71,18 @@ func (v *v1) initSchemaTypes() {
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "The question",
 			},
+			"archived": &graphql.Field{
+				Type:        graphql.Boolean,
+				Description: "Whether the question has been archived",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					obj, ok := p.Source.(impact.Question)
+					if !ok {
+						return nil, errors.New("Expecting an impact.Question")
+					}
+					return obj.Deleted, nil
+				},
+			},
+
 			"minValue": &graphql.Field{
 				Type:        graphql.Int,
 				Description: "The minimum value in the scale",

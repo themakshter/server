@@ -5,7 +5,7 @@ mongo:
 server:
   build: .
   ports:
-    - "8080:80"
+    - "8081:80"
   links:
     - "mongo"
   environment:
@@ -15,6 +15,6 @@ server:
 graphiql:
   build: ./graphiql
   ports:
-    - "8081:80"
+    - "8082:80"
   links:
     - "server:local-impactasaurus.com"
