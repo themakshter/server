@@ -41,6 +41,10 @@ func (v *v1) initSchemaTypes() {
 				Type:        graphql.Boolean,
 				Description: "Whether the question has been archived",
 			},
+			"categoryID": &graphql.Field{
+				Type:        graphql.String,
+				Description: "The category the question belongs to",
+			},
 		},
 		ResolveType: func(p graphql.ResolveTypeParams) *graphql.Object {
 			obj, ok := p.Value.(impact.Question)
@@ -82,7 +86,10 @@ func (v *v1) initSchemaTypes() {
 					return obj.Deleted, nil
 				},
 			},
-
+			"categoryID": &graphql.Field{
+				Type:        graphql.String,
+				Description: "The category the question belongs to",
+			},
 			"minValue": &graphql.Field{
 				Type:        graphql.Int,
 				Description: "The minimum value in the scale",
@@ -162,6 +169,44 @@ func (v *v1) initSchemaTypes() {
 		},
 	})
 
+	v.aggregationEnum = graphql.NewEnum(graphql.EnumConfig{
+		Name:        "Aggregation",
+		Description: "Aggregation functions available",
+		Values: graphql.EnumValueConfigMap{
+			impact.MEAN: &graphql.EnumValueConfig{
+				Value:       impact.MEAN,
+				Description: "Average",
+			},
+			impact.SUM: &graphql.EnumValueConfig{
+				Value:       impact.SUM,
+				Description: "Sum",
+			},
+		},
+	})
+
+	v.categoryType = graphql.NewObject(graphql.ObjectConfig{
+		Name:        "Category",
+		Description: "Categorises a set of questions. Used for aggregation",
+		Fields: graphql.Fields{
+			"id": &graphql.Field{
+				Type:        graphql.NewNonNull(graphql.ID),
+				Description: "Unique ID",
+			},
+			"name": &graphql.Field{
+				Type:        graphql.NewNonNull(graphql.String),
+				Description: "Name of the category",
+			},
+			"description": &graphql.Field{
+				Type:        graphql.String,
+				Description: "Description of the category",
+			},
+			"aggregation": &graphql.Field{
+				Type:        graphql.NewNonNull(v.aggregationEnum),
+				Description: "The aggregation applied to the category",
+			},
+		},
+	})
+
 	v.outcomeSetType = graphql.NewObject(graphql.ObjectConfig{
 		Name:        "OutcomeSet",
 		Description: "A set of questions to determine outcomes",
@@ -195,6 +240,10 @@ func (v *v1) initSchemaTypes() {
 			},
 			"questions": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.NewList(v.questionInterface)),
+				Description: "Questions associated with the outcome set",
+			},
+			"categories": &graphql.Field{
+				Type:        graphql.NewList(v.categoryType),
 				Description: "Questions associated with the outcome set",
 			},
 		},

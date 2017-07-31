@@ -1,9 +1,9 @@
 package mongo
 
 import (
+	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
 	"github.com/impactasaurus/server/data"
-	impact "github.com/impactasaurus/server"
 	uuid "github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -34,15 +34,15 @@ func (m *mongo) NewQuestion(outcomeSetID, question, questionType string, options
 	id := uuid.NewV4()
 
 	newQuestion := &impact.Question{
-		ID: id.String(),
+		ID:       id.String(),
 		Question: question,
-		Type: questionType,
-		Options: options,
-		Deleted: false,
+		Type:     questionType,
+		Options:  options,
+		Deleted:  false,
 	}
 
 	if err := col.Update(bson.M{
-		"_id": outcomeSetID,
+		"_id":            outcomeSetID,
 		"organisationID": userOrg,
 	}, bson.M{
 		"$push": bson.M{
@@ -65,9 +65,9 @@ func (m *mongo) DeleteQuestion(outcomeSetID, questionID string, u auth.User) err
 	defer closer()
 
 	return col.Update(bson.M{
-		"_id": outcomeSetID,
+		"_id":            outcomeSetID,
 		"organisationID": userOrg,
-		"questions.id": questionID,
+		"questions.id":   questionID,
 	}, bson.M{
 		"$set": bson.M{
 			"questions.$.deleted": true,
@@ -85,17 +85,17 @@ func (m *mongo) EditQuestion(outcomeSetID, questionID, question, questionType st
 	defer closer()
 
 	newQ := impact.Question{
-		ID: questionID,
+		ID:       questionID,
 		Question: question,
-		Type: questionType,
-		Options: options,
-		Deleted: false,
+		Type:     questionType,
+		Options:  options,
+		Deleted:  false,
 	}
 
 	if err := col.Update(bson.M{
-		"_id": outcomeSetID,
+		"_id":            outcomeSetID,
 		"organisationID": userOrg,
-		"questions.id": questionID,
+		"questions.id":   questionID,
 	}, bson.M{
 		"$set": bson.M{
 			"questions.$": newQ,
@@ -104,4 +104,55 @@ func (m *mongo) EditQuestion(outcomeSetID, questionID, question, questionType st
 		return impact.Question{}, err
 	}
 	return newQ, nil
+}
+
+func (m *mongo) SetCategory(outcomeSetID, questionID, categoryID string, u auth.User) (impact.Question, error) {
+	userOrg, err := u.Organisation()
+	if err != nil {
+		return impact.Question{}, err
+	}
+
+	_, err = m.GetCategory(outcomeSetID, categoryID, u)
+	if err != nil {
+		return impact.Question{}, data.NewNotFoundError("Category")
+	}
+
+	col, closer := m.getOutcomeCollection()
+	defer closer()
+
+	if err := col.Update(bson.M{
+		"_id":            outcomeSetID,
+		"organisationID": userOrg,
+		"questions.id":   questionID,
+	}, bson.M{
+		"$set": bson.M{
+			"questions.$.category": categoryID,
+		},
+	}); err != nil {
+		return impact.Question{}, err
+	}
+	return m.GetQuestion(outcomeSetID, questionID, u)
+}
+
+func (m *mongo) RemoveCategory(outcomeSetID, questionID string, u auth.User) (impact.Question, error) {
+	userOrg, err := u.Organisation()
+	if err != nil {
+		return impact.Question{}, err
+	}
+
+	col, closer := m.getOutcomeCollection()
+	defer closer()
+
+	if err := col.Update(bson.M{
+		"_id":            outcomeSetID,
+		"organisationID": userOrg,
+		"questions.id":   questionID,
+	}, bson.M{
+		"$set": bson.M{
+			"questions.$.category": nil,
+		},
+	}); err != nil {
+		return impact.Question{}, err
+	}
+	return m.GetQuestion(outcomeSetID, questionID, u)
 }
