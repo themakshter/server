@@ -13,7 +13,7 @@ type Question struct {
 	Type       string                 `json:"type"`
 	Deleted    bool                   `json:"deleted"`
 	Options    map[string]interface{} `json:"options"`
-	CategoryID string                 `json:"categoryID"`
+	CategoryID string                 `json:"categoryID"  bson:"categoryID"`
 }
 
 type Category struct {

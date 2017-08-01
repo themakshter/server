@@ -126,7 +126,7 @@ func (m *mongo) SetCategory(outcomeSetID, questionID, categoryID string, u auth.
 		"questions.id":   questionID,
 	}, bson.M{
 		"$set": bson.M{
-			"questions.$.category": categoryID,
+			"questions.$.categoryID": categoryID,
 		},
 	}); err != nil {
 		return impact.Question{}, err
@@ -149,7 +149,7 @@ func (m *mongo) RemoveCategory(outcomeSetID, questionID string, u auth.User) (im
 		"questions.id":   questionID,
 	}, bson.M{
 		"$set": bson.M{
-			"questions.$.category": nil,
+			"questions.$.categoryID": nil,
 		},
 	}); err != nil {
 		return impact.Question{}, err
