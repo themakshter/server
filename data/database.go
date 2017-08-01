@@ -32,6 +32,12 @@ type Base interface {
 	DeleteQuestion(outcomeSetID, questionID string, u auth.User) error
 	EditQuestion(outcomeSetID, questionID, question, questionType string, options map[string]interface{}, u auth.User) (impact.Question, error)
 
+	GetCategory(outcomeSetID, categoryID string, u auth.User) (impact.Category, error)
+	NewCategory(outcomeSetID, name, description, aggregation string, u auth.User) (impact.Category, error)
+	DeleteCategory(outcomeSetID, categoryID string, u auth.User) error
+	SetCategory(outcomeSetID, questionID, categoryID string, u auth.User) (impact.Question, error)
+	RemoveCategory(outcomeSetID, questionID string, u auth.User) (impact.Question, error)
+
 	GetOrganisation(id string, u auth.User) (impact.Organisation, error)
 
 	GetMeeting(id string, u auth.User) (impact.Meeting, error)

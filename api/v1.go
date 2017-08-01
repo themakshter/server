@@ -13,9 +13,11 @@ type v1 struct {
 	questionInterface *graphql.Interface
 	likertScale       *graphql.Object
 	outcomeSetType    *graphql.Object
+	aggregationEnum   *graphql.Enum
+	categoryType      *graphql.Object
 
 	answerInterface *graphql.Interface
-	intAnswer   *graphql.Object
+	intAnswer       *graphql.Object
 	meetingType     *graphql.Object
 
 	organisationType *graphql.Object

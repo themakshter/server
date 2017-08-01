@@ -137,6 +137,93 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 					return id, nil
 				}),
 			},
+			"AddCategory": &graphql.Field{
+				Type:        v.outcomeSetType,
+				Description: "Add a category to the outcome set",
+				Args: graphql.FieldConfigArgument{
+					"outcomeSetID": &graphql.ArgumentConfig{
+						Type:        graphql.NewNonNull(graphql.ID),
+						Description: "The ID of the outcomeset",
+					},
+					"name": &graphql.ArgumentConfig{
+						Type:        graphql.NewNonNull(graphql.String),
+						Description: "Name of the category",
+					},
+					"description": &graphql.ArgumentConfig{
+						Type:        graphql.String,
+						Description: "Description of the category",
+					},
+					"aggregation": &graphql.ArgumentConfig{
+						Type:        graphql.NewNonNull(v.aggregationEnum),
+						Description: "The aggregation applied to the category",
+					},
+				},
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+					id := p.Args["outcomeSetID"].(string)
+					name := p.Args["name"].(string)
+					description := getNullableString(p.Args, "description")
+					aggregation := p.Args["aggregation"].(string)
+					if _, err := v.db.NewCategory(id, name, description, aggregation, u); err != nil {
+						return nil, err
+					}
+					return v.db.GetOutcomeSet(id, u)
+				}),
+			},
+			"DeleteCategory": &graphql.Field{
+				Type:        v.outcomeSetType,
+				Description: "Remove a category from an outcome set. The category being removed must not be applied to any questions.",
+				Args: graphql.FieldConfigArgument{
+					"outcomeSetID": &graphql.ArgumentConfig{
+						Type:        graphql.NewNonNull(graphql.String),
+						Description: "The ID of the outcomeset",
+					},
+					"categoryID": &graphql.ArgumentConfig{
+						Type:        graphql.NewNonNull(graphql.String),
+						Description: "The ID of the category",
+					},
+				},
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+					outcomeSetID := p.Args["outcomeSetID"].(string)
+					categoryID := p.Args["categoryID"].(string)
+					if err := v.db.DeleteCategory(outcomeSetID, categoryID, u); err != nil {
+						return nil, err
+					}
+					return v.db.GetOutcomeSet(outcomeSetID, u)
+				}),
+			},
+			"SetCategory": &graphql.Field{
+				Type:        v.outcomeSetType,
+				Description: "Set or remove the category associated with a question.",
+				Args: graphql.FieldConfigArgument{
+					"outcomeSetID": &graphql.ArgumentConfig{
+						Type:        graphql.NewNonNull(graphql.String),
+						Description: "The ID of the outcomeset",
+					},
+					"questionID": &graphql.ArgumentConfig{
+						Type:        graphql.NewNonNull(graphql.String),
+						Description: "The ID of the question",
+					},
+					"categoryID": &graphql.ArgumentConfig{
+						Type:        graphql.String,
+						Description: "The ID of the category. If NULL, the category associated with the question is removed",
+					},
+				},
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+					outcomeSetID := p.Args["outcomeSetID"].(string)
+					questionID := p.Args["questionID"].(string)
+					categoryID := getNullableString(p.Args, "categoryID")
+					var dbErr error
+					if categoryID == "" {
+						_, dbErr = v.db.RemoveCategory(outcomeSetID, questionID, u)
+					} else {
+						_, dbErr = v.db.SetCategory(outcomeSetID, questionID, categoryID, u)
+					}
+					if dbErr != nil {
+						return nil, dbErr
+					}
+					return v.db.GetOutcomeSet(outcomeSetID, u)
+				}),
+			},
 			"AddLikertQuestion": &graphql.Field{
 				Type:        v.outcomeSetType,
 				Description: "Add a likert scale question to an outcome set",
