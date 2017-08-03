@@ -23,7 +23,7 @@ func (m *mongo) GetCategory(outcomeSetID, categoryID string, u auth.User) (impac
 	return impact.Category{}, data.NewNotFoundError("Category")
 }
 
-func (m *mongo) NewCategory(outcomeSetID, name, description, aggregation string, u auth.User) (impact.Category, error) {
+func (m *mongo) NewCategory(outcomeSetID, name, description string, aggregation impact.Aggregation, u auth.User) (impact.Category, error) {
 	userOrg, err := u.Organisation()
 	if err != nil {
 		return impact.Category{}, err

@@ -16,9 +16,11 @@ type v1 struct {
 	aggregationEnum   *graphql.Enum
 	categoryType      *graphql.Object
 
-	answerInterface *graphql.Interface
-	intAnswer       *graphql.Object
-	meetingType     *graphql.Object
+	answerInterface   *graphql.Interface
+	intAnswer         *graphql.Object
+	categoryAggregate *graphql.Object
+	aggregates        *graphql.Object
+	meetingType       *graphql.Object
 
 	organisationType *graphql.Object
 }

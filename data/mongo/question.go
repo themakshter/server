@@ -22,7 +22,7 @@ func (m *mongo) GetQuestion(outcomeSetID string, questionID string, u auth.User)
 	return impact.Question{}, data.NewNotFoundError("Question")
 }
 
-func (m *mongo) NewQuestion(outcomeSetID, question, questionType string, options map[string]interface{}, u auth.User) (impact.Question, error) {
+func (m *mongo) NewQuestion(outcomeSetID, question string, questionType impact.QuestionType, options map[string]interface{}, u auth.User) (impact.Question, error) {
 	userOrg, err := u.Organisation()
 	if err != nil {
 		return impact.Question{}, err
@@ -75,7 +75,7 @@ func (m *mongo) DeleteQuestion(outcomeSetID, questionID string, u auth.User) err
 	})
 }
 
-func (m *mongo) EditQuestion(outcomeSetID, questionID, question, questionType string, options map[string]interface{}, u auth.User) (impact.Question, error) {
+func (m *mongo) EditQuestion(outcomeSetID, questionID, question string, questionType impact.QuestionType, options map[string]interface{}, u auth.User) (impact.Question, error) {
 	userOrg, err := u.Organisation()
 	if err != nil {
 		return impact.Question{}, err
