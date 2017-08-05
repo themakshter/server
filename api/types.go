@@ -7,6 +7,7 @@ import (
 	"github.com/graphql-go/graphql"
 	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
+	"github.com/impactasaurus/server/logic"
 )
 
 func (v *v1) initSchemaTypes() {
@@ -173,11 +174,11 @@ func (v *v1) initSchemaTypes() {
 		Name:        "Aggregation",
 		Description: "Aggregation functions available",
 		Values: graphql.EnumValueConfigMap{
-			impact.MEAN: &graphql.EnumValueConfig{
+			string(impact.MEAN): &graphql.EnumValueConfig{
 				Value:       impact.MEAN,
-				Description: "Average",
+				Description: "Mean",
 			},
-			impact.SUM: &graphql.EnumValueConfig{
+			string(impact.SUM): &graphql.EnumValueConfig{
 				Value:       impact.SUM,
 				Description: "Sum",
 			},
@@ -301,6 +302,32 @@ func (v *v1) initSchemaTypes() {
 		},
 	})
 
+	v.categoryAggregate = graphql.NewObject(graphql.ObjectConfig{
+		Name:        "CategoryAggregate",
+		Description: "An aggregation of answers to the category level",
+		Fields: graphql.Fields{
+			"categoryID": &graphql.Field{
+				Type:        graphql.NewNonNull(graphql.String),
+				Description: "The ID of the category being aggregated",
+			},
+			"value": &graphql.Field{
+				Type:        graphql.Float,
+				Description: "The aggregated value",
+			},
+		},
+	})
+
+	v.aggregates = graphql.NewObject(graphql.ObjectConfig{
+		Name:        "Aggregates",
+		Description: "Aggregations of the meeting",
+		Fields: graphql.Fields{
+			"category": &graphql.Field{
+				Type:        graphql.NewList(v.categoryAggregate),
+				Description: "Answers aggregated to the category level",
+			},
+		},
+	})
+
 	v.meetingType = graphql.NewObject(graphql.ObjectConfig{
 		Name:        "Meeting",
 		Description: "A set of answers for an outcome set",
@@ -350,6 +377,27 @@ func (v *v1) initSchemaTypes() {
 			"answers": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.NewList(v.answerInterface)),
 				Description: "The answers provided in the meeting",
+			},
+			"aggregates": &graphql.Field{
+				Type:        v.aggregates,
+				Description: "Aggregations of the meeting's answers",
+				Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+					obj, ok := p.Source.(impact.Meeting)
+					if !ok {
+						return nil, errors.New("Expecting an impact.Meeting")
+					}
+					os, err := v.db.GetOutcomeSet(obj.OutcomeSetID, u)
+					if err != nil {
+						return nil, err
+					}
+					catAgs, err := logic.GetCategoryAggregates(obj, os)
+					if err != nil {
+						return nil, err
+					}
+					return impact.Aggregates{
+						Category: catAgs,
+					}, nil
+				}),
 			},
 			"conducted": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.String),

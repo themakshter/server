@@ -1,26 +1,30 @@
 package server
 
-const LIKERT = "likert"
+type QuestionType string
+
+const LIKERT QuestionType = "likert"
+
+type Aggregation string
 
 const (
-	MEAN = "mean"
-	SUM  = "sum"
+	MEAN Aggregation = "mean"
+	SUM  Aggregation = "sum"
 )
 
 type Question struct {
 	ID         string                 `json:"id"`
 	Question   string                 `json:"question"`
-	Type       string                 `json:"type"`
+	Type       QuestionType           `json:"type"`
 	Deleted    bool                   `json:"deleted"`
 	Options    map[string]interface{} `json:"options"`
 	CategoryID string                 `json:"categoryID"  bson:"categoryID"`
 }
 
 type Category struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Aggregation string `json:"aggregation"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Aggregation Aggregation `json:"aggregation"`
 }
 
 type OutcomeSet struct {
@@ -41,4 +45,13 @@ func (os *OutcomeSet) GetCategoryQuestions(catID string) []Question {
 		}
 	}
 	return out
+}
+
+func (os *OutcomeSet) GetQuestion(qID string) *Question {
+	for _, q := range os.Questions {
+		if q.ID == qID {
+			return &q
+		}
+	}
+	return nil
 }

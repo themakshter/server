@@ -1,15 +1,18 @@
 package server
 
 import (
+	"errors"
 	"time"
 )
 
-const INT = "int"
+type AnswerType string
+
+const INT AnswerType = "int"
 
 type Answer struct {
 	QuestionID string      `json:"questionID" bson:"questionID"`
 	Answer     interface{} `json:"answer"`
-	Type       string      `json:"type"`
+	Type       AnswerType  `json:"type"`
 }
 
 type Meeting struct {
@@ -22,4 +25,34 @@ type Meeting struct {
 	Conducted      time.Time `json:"conducted"`
 	Created        time.Time `json:"created"`
 	Modified       time.Time `json:"modified"`
+}
+
+type CategoryAggregate struct {
+	CategoryID string  `json:"categoryID"`
+	Value      float32 `json:"value"`
+}
+
+type Aggregates struct {
+	Category []CategoryAggregate `json:"category"`
+}
+
+func (a Answer) IsNumeric() bool {
+	return a.Type == INT
+}
+
+func (a Answer) ToFloat() (float32, error) {
+	switch i := a.Answer.(type) {
+	case float32:
+		return i, nil
+	case float64:
+		return float32(i), nil
+	case int64:
+		return float32(i), nil
+	case int32:
+		return float32(i), nil
+	case int:
+		return float32(i), nil
+	default:
+		return 0, errors.New("Cannot convert answer to float")
+	}
 }
