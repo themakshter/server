@@ -34,7 +34,7 @@ func GetCategoryAggregates(m impact.Meeting, os impact.OutcomeSet) ([]impact.Cat
 	for _, c := range os.Categories {
 		vals := make([]float32, 0, len(m.Answers))
 		for _, a := range m.Answers {
-			if a.Type != impact.INT {
+			if !a.IsNumeric() {
 				continue
 			}
 			q := os.GetQuestion(a.QuestionID)

@@ -310,7 +310,7 @@ func (v *v1) initSchemaTypes() {
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "The ID of the category being aggregated",
 			},
-			"aggregate": &graphql.Field{
+			"value": &graphql.Field{
 				Type:        graphql.Float,
 				Description: "The aggregated value",
 			},

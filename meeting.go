@@ -29,11 +29,15 @@ type Meeting struct {
 
 type CategoryAggregate struct {
 	CategoryID string  `json:"categoryID"`
-	Aggregate  float32 `json:"aggregate"`
+	Value      float32 `json:"value"`
 }
 
 type Aggregates struct {
 	Category []CategoryAggregate `json:"category"`
+}
+
+func (a Answer) IsNumeric() bool {
+	return a.Type == INT
 }
 
 func (a Answer) ToFloat() (float32, error) {

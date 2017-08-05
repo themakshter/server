@@ -9,11 +9,8 @@ server:
   links:
     - "mongo"
   environment:
-    - MONGO_URL=ds064649.mlab.com
-    - MONGO_PORT=64649
-    - MONGO_DB=impactasaurus
-    - MONGO_USER=impactasaurus
-    - MONGO_PASS=2fFpKMwHfA8a
+    - MONGO_URL=mongo
+    - MONGO_PORT=27017
 graphiql:
   build: ./graphiql
   ports:
