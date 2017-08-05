@@ -53,7 +53,7 @@ func GetCategoryAggregates(m impact.Meeting, os impact.OutcomeSet) ([]impact.Cat
 		if len(vals) > 0 {
 			out = append(out, impact.CategoryAggregate{
 				CategoryID: c.ID,
-				Aggregate:  ag,
+				Value:      ag,
 			})
 		}
 	}
