@@ -1,10 +1,11 @@
 package api
 
 import (
+	"time"
+
 	"github.com/graphql-go/graphql"
 	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
-	"time"
 )
 
 func (v *v1) getSchema() (*graphql.Schema, error) {
@@ -162,8 +163,8 @@ func (v *v1) getSchema() (*graphql.Schema, error) {
 					id := p.Args["outcomeSetID"].(string)
 					name := p.Args["name"].(string)
 					description := getNullableString(p.Args, "description")
-					aggregation := p.Args["aggregation"].(string)
-					if _, err := v.db.NewCategory(id, name, description, impact.Aggregation(aggregation), u); err != nil {
+					aggregation := p.Args["aggregation"].(impact.Aggregation)
+					if _, err := v.db.NewCategory(id, name, description, aggregation, u); err != nil {
 						return nil, err
 					}
 					return v.db.GetOutcomeSet(id, u)
