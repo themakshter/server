@@ -34,3 +34,7 @@ You can configure the web app to communicate to your locally hosted server insta
 ## API Documentation
 
 GraphQL APIs include documentation, to view this, please navigate to the graphql IDE listed above. The API documentation will be visible on the right hand side of the web site.
+
+## Configuration
+
+The golang application is configured using environmental variables. The details of the available env vars can be found at `cmd/config.go`. Environmental variables can be added or adjusted, when using docker-compose, by editing `server.environment` within the `docker-compose.yml` file.
