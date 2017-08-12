@@ -38,3 +38,7 @@ GraphQL APIs include documentation, to view this, please navigate to the graphql
 ## Configuration
 
 The golang application is configured using environmental variables. The details of the available env vars can be found at `cmd/config.go`. Environmental variables can be added or adjusted, when using docker-compose, by editing `server.environment` within the `docker-compose.yml` file.
+
+## Contributing
+
+Please read the [contribution guidelines](https://github.com/impactasaurus/server/blob/master/CONTRIBUTING.md) to find out how to contribute.
