@@ -37,10 +37,23 @@ type OutcomeSet struct {
 	Deleted        bool       `json:"deleted"`
 }
 
+// GetCategoryQuestions gets questions belonging to the provided category ID
+// Does not return archived questions
 func (os *OutcomeSet) GetCategoryQuestions(catID string) []Question {
 	out := make([]Question, 0, len(os.Questions))
 	for _, q := range os.Questions {
-		if q.CategoryID == catID {
+		if q.CategoryID == catID && !q.Deleted {
+			out = append(out, q)
+		}
+	}
+	return out
+}
+
+// GetArchivedCategoryQuestions gets archived questions belonging to the provided category ID
+func (os *OutcomeSet) GetArchivedCategoryQuestions(catID string) []Question {
+	out := make([]Question, 0, len(os.Questions))
+	for _, q := range os.Questions {
+		if q.CategoryID == catID && q.Deleted {
 			out = append(out, q)
 		}
 	}
