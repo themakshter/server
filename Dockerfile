@@ -4,7 +4,7 @@ RUN go get -u github.com/kardianos/govendor
 
 WORKDIR /go/src/github.com/impactasaurus/server
 COPY . .
-RUN govendor get
+RUN govendor sync
 
 WORKDIR /go/src/github.com/impactasaurus/server/cmd
 RUN go-wrapper install
