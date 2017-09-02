@@ -25,6 +25,7 @@ type jocReporter struct {
 	os                  impact.OutcomeSet
 	excludedCategoryIDs []string
 	excludedQuestionIDs []string
+	excludedBenIDs      []string
 }
 
 func (j *jocReporter) addGlobalWarning(warning string) {
@@ -72,7 +73,7 @@ func (j *jocReporter) getFirstAndLastMeetings(lastMeetings map[string]impact.Mee
 			}
 		}
 		if !found {
-			j.addGlobalWarning(fmt.Sprintf("Beneficiary %s was not included as they only have a single meeting recorded", ben))
+			j.excludedBenIDs = append(j.excludedBenIDs, ben)
 			continue
 		}
 		firstAndLast[ben] = firstAndLastMeetings{
@@ -232,6 +233,7 @@ func GetJOCServiceReport(start, end time.Time, questionSetID string, db data.Bas
 		globalWarnings:      []string{},
 		excludedCategoryIDs: []string{},
 		excludedQuestionIDs: []string{},
+		excludedBenIDs:      []string{},
 	}
 
 	meetingsInRange, err := db.GetOSMeetingsInTimeRange(start, end, questionSetID, u)
@@ -249,8 +251,9 @@ func GetJOCServiceReport(start, end time.Time, questionSetID string, db data.Bas
 
 	ret := impact.JOCServiceReport{
 		Excluded: impact.Excluded{
-			CategoryIDs: j.excludedCategoryIDs,
-			QuestionIDs: j.excludedQuestionIDs,
+			CategoryIDs:    j.excludedCategoryIDs,
+			QuestionIDs:    j.excludedQuestionIDs,
+			BeneficiaryIDs: j.excludedBenIDs,
 		},
 		BeneficiaryIDs:     j.getBeneficiaryIDs(firstAndLast),
 		CategoryAggregates: cAggs,

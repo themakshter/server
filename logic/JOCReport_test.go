@@ -241,8 +241,9 @@ func TestJOCReport(t *testing.T) {
 		BeneficiaryIDs: []string{"B1", "B2", "B3"},
 		Warnings:       []string{},
 		Excluded: impact.Excluded{
-			CategoryIDs: []string{},
-			QuestionIDs: []string{},
+			CategoryIDs:    []string{},
+			QuestionIDs:    []string{},
+			BeneficiaryIDs: []string{},
 		},
 		QuestionAggregates: impact.JOCQAggs{
 			First: []impact.QBenAgg{{
@@ -405,8 +406,8 @@ func TestUsersWithOnlyOneMeeting(t *testing.T) {
 		result, err := logic.GetJOCServiceReport(time.Now(), time.Now(), "q", mockDB, mockUser)
 		assert.NoError(t, err)
 		assert.Len(t, result.BeneficiaryIDs, 0)
-		assert.Len(t, result.Warnings, 1)
-		assert.Regexp(t, regexp.MustCompile("Beneficiary .* only have a single meeting recorded"), result.Warnings[0])
+		assert.Len(t, result.Excluded.BeneficiaryIDs, 1)
+		assert.Equal(t, "B1", result.Excluded.BeneficiaryIDs[0])
 	})
 }
 

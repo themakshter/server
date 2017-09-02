@@ -17,8 +17,9 @@ type QBenAgg struct {
 }
 
 type Excluded struct {
-	CategoryIDs []string `json:"categoryIDs"`
-	QuestionIDs []string `json:"questionIDs"`
+	CategoryIDs    []string `json:"categoryIDs"`
+	QuestionIDs    []string `json:"questionIDs"`
+	BeneficiaryIDs []string `json:"beneficiaryIDs"`
 }
 
 type JOCCatAggs struct {

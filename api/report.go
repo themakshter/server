@@ -2,18 +2,19 @@ package api
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/graphql-go/graphql"
 	"github.com/impactasaurus/server/auth"
 	"github.com/impactasaurus/server/logic"
-	"strings"
-	"time"
 )
 
 func (v *v1) initRepTypes() reportTypes {
 
 	excluded := graphql.NewObject(graphql.ObjectConfig{
 		Name:        "Excluded",
-		Description: "Details the questions or categories excluded from an aggregation",
+		Description: "Details the questions, categories and beneficiaries excluded from an aggregation",
 		Fields: graphql.Fields{
 			"categoryIDs": &graphql.Field{
 				Type:        graphql.NewList(graphql.String),
@@ -22,6 +23,10 @@ func (v *v1) initRepTypes() reportTypes {
 			"questionIDs": &graphql.Field{
 				Type:        graphql.NewList(graphql.String),
 				Description: "The question IDs excluded from the report",
+			},
+			"beneficiaryIDs": &graphql.Field{
+				Type:        graphql.NewList(graphql.String),
+				Description: "The beneficiaries excluded from the report",
 			},
 		},
 	})
@@ -92,11 +97,11 @@ func (v *v1) initRepTypes() reportTypes {
 				},
 				"excluded": &graphql.Field{
 					Type:        excluded,
-					Description: "Any questions or categories excluded from the report. This occurs when there are no instances of them associated with the considered beneficiaries",
+					Description: "Details the questions, categories and beneficiaries excluded from the report due to lack of data rather than error",
 				},
 				"warnings": &graphql.Field{
 					Type:        graphql.NewList(graphql.String),
-					Description: "Any warning messages associated with the report. Contains users which could not be included.",
+					Description: "Any warning messages associated with the report.",
 				},
 			},
 		}),
