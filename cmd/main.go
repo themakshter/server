@@ -19,12 +19,12 @@ func main() {
 
 	db, err := mongo.New(c.Mongo.URL, c.Mongo.Port, c.Mongo.Database, c.Mongo.User, c.Mongo.Password)
 	if err != nil {
-		panic(err)
+		log.Fatal(err, nil)
 	}
 
 	v1Handler, err := api.NewV1(db)
 	if err != nil {
-		panic(err)
+		log.Fatal(err, nil)
 	}
 
 	cors := corsLib.New(corsLib.Options{
@@ -40,7 +40,7 @@ func mustConfigureLogger(c *config) {
 	if c.Sentry.DSN != "" {
 		s, err := log.NewSentryErrorTracker(c.Sentry.DSN)
 		if err != nil {
-			panic(err)
+			log.Fatal(err, nil)
 		}
 		log.RegisterErrorTracker(s)
 	}

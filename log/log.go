@@ -11,6 +11,7 @@ import (
 type ErrorTracker interface {
 	Name() string
 	TrackError(err error, tags map[string]string)
+	TrackFatal(err error, tags map[string]string)
 }
 
 type singleton struct {
@@ -64,4 +65,17 @@ func Error(err error, tags map[string]string) {
 	if inst.tracker != nil {
 		inst.tracker.TrackError(err, tags)
 	}
+}
+
+// Fatal logs an error and optional metadata to console and to any registered ErrorTracker
+// It will then panic.
+func Fatal(err error, tags map[string]string) {
+	print("FATAL", err.Error(), tags)
+
+	inst := getInstance()
+	if inst.tracker != nil {
+		inst.tracker.TrackFatal(err, tags)
+	}
+
+	panic(err)
 }
