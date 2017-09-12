@@ -20,6 +20,7 @@ func setupWrapper(t *testing.T, inner func(*mock.MockUser, *mock.MockBase)) {
 	defer mockCtrl.Finish()
 	mockUser := mock.NewMockUser(mockCtrl)
 	mockDB := mock.NewMockBase(mockCtrl)
+	mockUser.EXPECT().UserID().Return("testID").AnyTimes()
 	inner(mockUser, mockDB)
 }
 
