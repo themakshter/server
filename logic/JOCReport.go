@@ -3,13 +3,13 @@ package logic
 import (
 	"errors"
 	"fmt"
-	"log"
 	"sort"
 	"time"
 
 	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
 	"github.com/impactasaurus/server/data"
+	"github.com/impactasaurus/server/log"
 )
 
 type firstAndLastMeetings struct {
@@ -55,11 +55,22 @@ func (j *jocReporter) getFirstAndLastMeetings(lastMeetings map[string]impact.Mee
 		benMeetings, err := j.db.GetOSMeetingsForBeneficiary(ben, j.questionSetID, j.u)
 		if err != nil {
 			j.addGlobalWarning(fmt.Sprintf("Could not include beneficiary %s due to an system error. Please contact support.", ben))
-			log.Printf("Getting benificary's (%s) meetings failed: %s", ben, err.Error())
+			log.Error(err, map[string]string{
+				"ben":     ben,
+				"message": "Getting benificarys meetings failed",
+				"qsetID":  j.questionSetID,
+				"uid":     j.u.UserID(),
+			})
 			continue
 		}
 		if len(benMeetings) == 0 {
 			j.addGlobalWarning(fmt.Sprintf("Could not include beneficiary %s as we could not find their first meeting. Please contact support.", ben))
+			log.Error(errors.New("No benificary meetings found"), map[string]string{
+				"ben":    ben,
+				"qsetID": j.questionSetID,
+				"uid":    j.u.UserID(),
+				"last":   lastMeeting.ID,
+			})
 			continue
 		}
 		// 	 find first meeting
@@ -198,6 +209,14 @@ func (j *jocReporter) getCategoryAggregations(firstAndLast map[string]firstAndLa
 			sCat, sE := GetCategoryAggregate(fl.last, cat.ID, j.os)
 			if fE != nil || sE != nil {
 				benAggregator.addBenificaryWarning(fmt.Sprintf("Beneficiary %s not included because the category aggregation failed", ben))
+				log.Error(errors.New("JOCReport: Category aggregation failed"), map[string]string{
+					"ben":        ben,
+					"categoryID": cat.ID,
+					"qsetID":     j.questionSetID,
+					"uid":        j.u.UserID(),
+					"first":      fl.first.ID,
+					"last":       fl.last.ID,
+				})
 				continue
 			}
 			if fCat == nil || sCat == nil {

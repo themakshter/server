@@ -19,9 +19,14 @@ type configNetwork struct {
 	Port int `envconfig:"PORT" default:"80"`
 }
 
+type configErrorTracking struct {
+	DSN string `envconfig:"SENTRY_DSN" default:""`
+}
+
 type config struct {
-	Mongo configMongo
+	Mongo   configMongo
 	Network configNetwork
+	Sentry  configErrorTracking
 }
 
 func mustGetConfiguration() *config {
