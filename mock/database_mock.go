@@ -5,11 +5,12 @@
 package mock
 
 import (
+	reflect "reflect"
+	time "time"
+
 	gomock "github.com/golang/mock/gomock"
 	server "github.com/impactasaurus/server"
 	auth "github.com/impactasaurus/server/auth"
-	reflect "reflect"
-	time "time"
 )
 
 // MockBase is a mock of Base interface
@@ -85,16 +86,16 @@ func (mr *MockBaseMockRecorder) EditOutcomeSet(arg0, arg1, arg2, arg3 interface{
 }
 
 // EditQuestion mocks base method
-func (m *MockBase) EditQuestion(arg0, arg1, arg2 string, arg3 server.QuestionType, arg4 map[string]interface{}, arg5 auth.User) (server.Question, error) {
-	ret := m.ctrl.Call(m, "EditQuestion", arg0, arg1, arg2, arg3, arg4, arg5)
+func (m *MockBase) EditQuestion(arg0, arg1, arg2, arg3 string, arg4 server.QuestionType, arg5 map[string]interface{}, arg6 auth.User) (server.Question, error) {
+	ret := m.ctrl.Call(m, "EditQuestion", arg0, arg1, arg2, arg3, arg4, arg5, arg6)
 	ret0, _ := ret[0].(server.Question)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EditQuestion indicates an expected call of EditQuestion
-func (mr *MockBaseMockRecorder) EditQuestion(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditQuestion", reflect.TypeOf((*MockBase)(nil).EditQuestion), arg0, arg1, arg2, arg3, arg4, arg5)
+func (mr *MockBaseMockRecorder) EditQuestion(arg0, arg1, arg2, arg3, arg4, arg5, arg6 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditQuestion", reflect.TypeOf((*MockBase)(nil).EditQuestion), arg0, arg1, arg2, arg3, arg4, arg5, arg6)
 }
 
 // GetCategory mocks base method
@@ -267,16 +268,16 @@ func (mr *MockBaseMockRecorder) NewOutcomeSet(arg0, arg1, arg2 interface{}) *gom
 }
 
 // NewQuestion mocks base method
-func (m *MockBase) NewQuestion(arg0, arg1 string, arg2 server.QuestionType, arg3 map[string]interface{}, arg4 auth.User) (server.Question, error) {
-	ret := m.ctrl.Call(m, "NewQuestion", arg0, arg1, arg2, arg3, arg4)
+func (m *MockBase) NewQuestion(arg0, arg1, arg2 string, arg3 server.QuestionType, arg4 map[string]interface{}, arg5 auth.User) (server.Question, error) {
+	ret := m.ctrl.Call(m, "NewQuestion", arg0, arg1, arg2, arg3, arg4, arg5)
 	ret0, _ := ret[0].(server.Question)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // NewQuestion indicates an expected call of NewQuestion
-func (mr *MockBaseMockRecorder) NewQuestion(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewQuestion", reflect.TypeOf((*MockBase)(nil).NewQuestion), arg0, arg1, arg2, arg3, arg4)
+func (mr *MockBaseMockRecorder) NewQuestion(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewQuestion", reflect.TypeOf((*MockBase)(nil).NewQuestion), arg0, arg1, arg2, arg3, arg4, arg5)
 }
 
 // RemoveCategory mocks base method
