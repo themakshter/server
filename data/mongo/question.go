@@ -22,7 +22,7 @@ func (m *mongo) GetQuestion(outcomeSetID string, questionID string, u auth.User)
 	return impact.Question{}, data.NewNotFoundError("Question")
 }
 
-func (m *mongo) NewQuestion(outcomeSetID, question string, questionType impact.QuestionType, options map[string]interface{}, u auth.User) (impact.Question, error) {
+func (m *mongo) NewQuestion(outcomeSetID, question, description string, questionType impact.QuestionType, options map[string]interface{}, u auth.User) (impact.Question, error) {
 	userOrg, err := u.Organisation()
 	if err != nil {
 		return impact.Question{}, err
@@ -34,11 +34,12 @@ func (m *mongo) NewQuestion(outcomeSetID, question string, questionType impact.Q
 	id := uuid.NewV4()
 
 	newQuestion := &impact.Question{
-		ID:       id.String(),
-		Question: question,
-		Type:     questionType,
-		Options:  options,
-		Deleted:  false,
+		ID:          id.String(),
+		Question:    question,
+		Description: description,
+		Type:        questionType,
+		Options:     options,
+		Deleted:     false,
 	}
 
 	if err := col.Update(bson.M{
@@ -75,7 +76,7 @@ func (m *mongo) DeleteQuestion(outcomeSetID, questionID string, u auth.User) err
 	})
 }
 
-func (m *mongo) EditQuestion(outcomeSetID, questionID, question string, questionType impact.QuestionType, options map[string]interface{}, u auth.User) (impact.Question, error) {
+func (m *mongo) EditQuestion(outcomeSetID, questionID, question, description string, questionType impact.QuestionType, options map[string]interface{}, u auth.User) (impact.Question, error) {
 	userOrg, err := u.Organisation()
 	if err != nil {
 		return impact.Question{}, err
@@ -85,11 +86,12 @@ func (m *mongo) EditQuestion(outcomeSetID, questionID, question string, question
 	defer closer()
 
 	newQ := impact.Question{
-		ID:       questionID,
-		Question: question,
-		Type:     questionType,
-		Options:  options,
-		Deleted:  false,
+		ID:          questionID,
+		Question:    question,
+		Description: description,
+		Type:        questionType,
+		Options:     options,
+		Deleted:     false,
 	}
 
 	if err := col.Update(bson.M{

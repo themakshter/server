@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+
 	"github.com/graphql-go/graphql"
 	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
@@ -21,6 +22,10 @@ func (v *v1) initOutcomeSetTypes(orgTypes organisationTypes) outcomeSetTypes {
 			"question": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "The question",
+			},
+			"description": &graphql.Field{
+				Type:        graphql.String,
+				Description: "Optional description of the question",
 			},
 			"archived": &graphql.Field{
 				Type:        graphql.Boolean,
@@ -59,6 +64,10 @@ func (v *v1) initOutcomeSetTypes(orgTypes organisationTypes) outcomeSetTypes {
 			"question": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "The question",
+			},
+			"description": &graphql.Field{
+				Type:        graphql.String,
+				Description: "Optional description of the question",
 			},
 			"archived": &graphql.Field{
 				Type:        graphql.Boolean,
@@ -423,6 +432,10 @@ func (v *v1) getOSMutations(osTypes outcomeSetTypes) graphql.Fields {
 					Type:        graphql.NewNonNull(graphql.String),
 					Description: "Question to be asked",
 				},
+				"description": &graphql.ArgumentConfig{
+					Type:        graphql.String,
+					Description: "Optional description of the question",
+				},
 				"minValue": &graphql.ArgumentConfig{
 					Type:        graphql.Int,
 					Description: "Minimum value of the likert scale",
@@ -447,7 +460,8 @@ func (v *v1) getOSMutations(osTypes outcomeSetTypes) graphql.Fields {
 				maxValue := p.Args["maxValue"].(int)
 				minLabel := getNullableString(p.Args, "minLabel")
 				maxLabel := getNullableString(p.Args, "maxLabel")
-				if _, err := v.db.NewQuestion(id, question, impact.LIKERT, map[string]interface{}{
+				description := getNullableString(p.Args, "description")
+				if _, err := v.db.NewQuestion(id, question, description, impact.LIKERT, map[string]interface{}{
 					"minValue": minValue,
 					"maxValue": maxValue,
 					"minLabel": minLabel,

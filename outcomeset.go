@@ -12,12 +12,13 @@ const (
 )
 
 type Question struct {
-	ID         string                 `json:"id"`
-	Question   string                 `json:"question"`
-	Type       QuestionType           `json:"type"`
-	Deleted    bool                   `json:"deleted"`
-	Options    map[string]interface{} `json:"options"`
-	CategoryID string                 `json:"categoryID"  bson:"categoryID"`
+	ID          string                 `json:"id"`
+	Question    string                 `json:"question"`
+	Description string                 `json:"description"`
+	Type        QuestionType           `json:"type"`
+	Deleted     bool                   `json:"deleted"`
+	Options     map[string]interface{} `json:"options"`
+	CategoryID  string                 `json:"categoryID"  bson:"categoryID"`
 }
 
 type Category struct {

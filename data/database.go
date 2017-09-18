@@ -2,9 +2,10 @@ package data
 
 import (
 	"fmt"
+	"time"
+
 	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
-	"time"
 )
 
 // NotFound is an error struct to be used when request to fetch / update / delete an individual element fails because the element does not exist.
@@ -28,9 +29,9 @@ type Base interface {
 	DeleteOutcomeSet(id string, u auth.User) error
 
 	GetQuestion(outcomeSetID string, questionID string, u auth.User) (impact.Question, error)
-	NewQuestion(outcomeSetID, question string, questionType impact.QuestionType, options map[string]interface{}, u auth.User) (impact.Question, error)
+	NewQuestion(outcomeSetID, question, description string, questionType impact.QuestionType, options map[string]interface{}, u auth.User) (impact.Question, error)
 	DeleteQuestion(outcomeSetID, questionID string, u auth.User) error
-	EditQuestion(outcomeSetID, questionID, question string, questionType impact.QuestionType, options map[string]interface{}, u auth.User) (impact.Question, error)
+	EditQuestion(outcomeSetID, questionID, question, description string, questionType impact.QuestionType, options map[string]interface{}, u auth.User) (impact.Question, error)
 
 	GetCategory(outcomeSetID, categoryID string, u auth.User) (impact.Category, error)
 	NewCategory(outcomeSetID, name, description string, aggregation impact.Aggregation, u auth.User) (impact.Category, error)
