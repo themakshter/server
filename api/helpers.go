@@ -9,6 +9,14 @@ func getNullableString(input map[string]interface{}, key string) string {
 	return s
 }
 
+func getNullOrString(input map[string]interface{}, key string) (string, bool) {
+	r := input[key]
+	if r != nil {
+		return r.(string), true
+	}
+	return "", false
+}
+
 func getNullableInt(input map[string]interface{}, key string) int {
 	var s int
 	r := input[key]

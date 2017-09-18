@@ -472,6 +472,59 @@ func (v *v1) getOSMutations(osTypes outcomeSetTypes) graphql.Fields {
 				return v.db.GetOutcomeSet(id, u)
 			}),
 		},
+		"EditLikertQuestion": &graphql.Field{
+			Type:        osTypes.outcomeSetType,
+			Description: "Edit a likert scale question. If arguments are not specified, their values are not altered.",
+			Args: graphql.FieldConfigArgument{
+				"outcomeSetID": &graphql.ArgumentConfig{
+					Type:        graphql.NewNonNull(graphql.ID),
+					Description: "The ID of the outcomeset",
+				},
+				"questionID": &graphql.ArgumentConfig{
+					Type:        graphql.NewNonNull(graphql.String),
+					Description: "The ID of the question",
+				},
+				"question": &graphql.ArgumentConfig{
+					Type:        graphql.String,
+					Description: "The new question to be asked",
+				},
+				"description": &graphql.ArgumentConfig{
+					Type:        graphql.String,
+					Description: "New description of the question",
+				},
+				"minLabel": &graphql.ArgumentConfig{
+					Type:        graphql.String,
+					Description: "New label associated with the minimum value of the likert scale",
+				},
+				"maxLabel": &graphql.ArgumentConfig{
+					Type:        graphql.String,
+					Description: "New label associated with the maximum value of the likert scale",
+				},
+			},
+			Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+				osID := p.Args["outcomeSetID"].(string)
+				qID := p.Args["questionID"].(string)
+				originalQ, err := v.db.GetQuestion(osID, qID, u)
+				if err != nil {
+					return nil, err
+				}
+				newQ := originalQ
+
+				if newQuestion, ok := getNullOrString(p.Args, "question"); ok {
+					newQ.Question = newQuestion
+				}
+				if newDescription, ok := getNullOrString(p.Args, "description"); ok {
+					newQ.Description = newDescription
+				}
+				if newMinLabel, ok := getNullOrString(p.Args, "minLabel"); ok {
+					newQ.Options["minLabel"] = newMinLabel
+				}
+				if newMaxLabel, ok := getNullOrString(p.Args, "maxLabel"); ok {
+					newQ.Options["maxLabel"] = newMaxLabel
+				}
+				return v.db.EditQuestion(osID, qID, newQ.Question, newQ.Description, impact.LIKERT, newQ.Options, u)
+			}),
+		},
 		"DeleteQuestion": &graphql.Field{
 			Type:        osTypes.outcomeSetType,
 			Description: "Remove a question from an outcome set",
