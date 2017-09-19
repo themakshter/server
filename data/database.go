@@ -32,6 +32,7 @@ type Base interface {
 	NewQuestion(outcomeSetID, question, description string, questionType impact.QuestionType, options map[string]interface{}, u auth.User) (impact.Question, error)
 	DeleteQuestion(outcomeSetID, questionID string, u auth.User) error
 	EditQuestion(outcomeSetID, questionID, question, description string, questionType impact.QuestionType, options map[string]interface{}, u auth.User) (impact.Question, error)
+	MoveQuestion(outcomeSetID, questionID string, newIndex uint, u auth.User) error
 
 	GetCategory(outcomeSetID, categoryID string, u auth.User) (impact.Category, error)
 	NewCategory(outcomeSetID, name, description string, aggregation impact.Aggregation, u auth.User) (impact.Category, error)

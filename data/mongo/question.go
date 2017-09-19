@@ -108,6 +108,54 @@ func (m *mongo) EditQuestion(outcomeSetID, questionID, question, description str
 	return newQ, nil
 }
 
+func (m *mongo) MoveQuestion(outcomeSetID, questionID string, newIndex uint, u auth.User) error {
+	os, err := m.GetOutcomeSet(outcomeSetID, u)
+	if err != nil {
+		return err
+	}
+
+	oldIdx := -1
+	for i, q := range os.Questions {
+		if q.ID == questionID {
+			oldIdx = i
+		}
+	}
+	if oldIdx == -1 {
+		return data.NewNotFoundError("Question")
+	}
+
+	maxIndex := uint(len(os.Questions) - 1)
+	if newIndex > maxIndex {
+		newIndex = maxIndex
+	}
+
+	nonMovingQuestions := make([]impact.Question, len(os.Questions))
+	copy(nonMovingQuestions, os.Questions)
+	nonMovingQuestions = append(nonMovingQuestions[:oldIdx], nonMovingQuestions[oldIdx+1:]...)
+
+	newQuestions := make([]impact.Question, len(os.Questions))
+	copy(newQuestions, nonMovingQuestions)
+	copy(newQuestions[newIndex+1:], nonMovingQuestions[newIndex:])
+	newQuestions[newIndex] = os.Questions[oldIdx]
+
+	userOrg, err := u.Organisation()
+	if err != nil {
+		return err
+	}
+	col, closer := m.getOutcomeCollection()
+	defer closer()
+
+	return col.Update(bson.M{
+		"_id":            outcomeSetID,
+		"organisationID": userOrg,
+	}, bson.M{
+		"$set": bson.M{
+			"questions": newQuestions,
+		},
+	})
+
+}
+
 func (m *mongo) SetCategory(outcomeSetID, questionID, categoryID string, u auth.User) (impact.Question, error) {
 	userOrg, err := u.Organisation()
 	if err != nil {

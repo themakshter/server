@@ -333,6 +333,36 @@ func (v *v1) getOSMutations(osTypes outcomeSetTypes) graphql.Fields {
 				return id, nil
 			}),
 		},
+		"MoveQuestion": &graphql.Field{
+			Type:        osTypes.outcomeSetType,
+			Description: "Move a question within the question set. Can be used to reorder questions.",
+			Args: graphql.FieldConfigArgument{
+				"outcomeSetID": &graphql.ArgumentConfig{
+					Type:        graphql.NewNonNull(graphql.String),
+					Description: "The ID of the outcomeset",
+				},
+				"questionID": &graphql.ArgumentConfig{
+					Type:        graphql.NewNonNull(graphql.String),
+					Description: "The ID of the question",
+				},
+				"newIndex": &graphql.ArgumentConfig{
+					Type:        graphql.NewNonNull(graphql.Int),
+					Description: "The new zero indexed position of the question witin the question set. Must be greater or equal to 0. The new index should be specified assuming that the question has been removed before being reinserted at the new index.",
+				},
+			},
+			Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+				outcomeSetID := p.Args["outcomeSetID"].(string)
+				questionID := p.Args["questionID"].(string)
+				newIndex := p.Args["newIndex"].(int)
+				if newIndex < 0 {
+					return nil, errors.New("newIndex must be greater or equal to zero")
+				}
+				if err := v.db.MoveQuestion(outcomeSetID, questionID, uint(newIndex), u); err != nil {
+					return nil, err
+				}
+				return v.db.GetOutcomeSet(outcomeSetID, u)
+			}),
+		},
 		"AddCategory": &graphql.Field{
 			Type:        osTypes.outcomeSetType,
 			Description: "Add a category to the outcome set",
