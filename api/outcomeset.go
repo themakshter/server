@@ -417,6 +417,57 @@ func (v *v1) getOSMutations(osTypes outcomeSetTypes) graphql.Fields {
 				return v.db.GetOutcomeSet(outcomeSetID, u)
 			}),
 		},
+		"EditCategory": &graphql.Field{
+			Type:        osTypes.outcomeSetType,
+			Description: "Edit a category belonging to an outcome set. If arguments are not specified, their values are not altered.",
+			Args: graphql.FieldConfigArgument{
+				"outcomeSetID": &graphql.ArgumentConfig{
+					Type:        graphql.NewNonNull(graphql.ID),
+					Description: "The ID of the outcomeset",
+				},
+				"categoryID": &graphql.ArgumentConfig{
+					Type:        graphql.NewNonNull(graphql.String),
+					Description: "The ID of the category",
+				},
+				"name": &graphql.ArgumentConfig{
+					Type:        graphql.String,
+					Description: "Name of the category",
+				},
+				"description": &graphql.ArgumentConfig{
+					Type:        graphql.String,
+					Description: "Description of the category",
+				},
+				"aggregation": &graphql.ArgumentConfig{
+					Type:        osTypes.aggregationEnum,
+					Description: "The aggregation applied to the category",
+				},
+			},
+			Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+				osID := p.Args["outcomeSetID"].(string)
+				cID := p.Args["categoryID"].(string)
+				originalCat, err := v.db.GetCategory(osID, cID, u)
+				if err != nil {
+					return nil, err
+				}
+				newCat := originalCat
+
+				if newName, ok := getNullOrString(p.Args, "name"); ok {
+					newCat.Name = newName
+				}
+				if newDescription, ok := getNullOrString(p.Args, "description"); ok {
+					newCat.Description = newDescription
+				}
+				if agStr, ok := p.Args["aggregation"]; ok {
+					if ag, ok := agStr.(impact.Aggregation); ok {
+						newCat.Aggregation = ag
+					}
+				}
+				if _, err := v.db.EditCategory(osID, cID, newCat.Name, newCat.Description, newCat.Aggregation, u); err != nil {
+					return nil, err
+				}
+				return v.db.GetOutcomeSet(osID, u)
+			}),
+		},
 		"SetCategory": &graphql.Field{
 			Type:        osTypes.outcomeSetType,
 			Description: "Set or remove the category associated with a question.",
@@ -552,7 +603,10 @@ func (v *v1) getOSMutations(osTypes outcomeSetTypes) graphql.Fields {
 				if newMaxLabel, ok := getNullOrString(p.Args, "maxLabel"); ok {
 					newQ.Options["maxLabel"] = newMaxLabel
 				}
-				return v.db.EditQuestion(osID, qID, newQ.Question, newQ.Description, impact.LIKERT, newQ.Options, u)
+				if _, err := v.db.EditQuestion(osID, qID, newQ.Question, newQ.Description, impact.LIKERT, newQ.Options, u); err != nil {
+					return nil, err
+				}
+				return v.db.GetOutcomeSet(osID, u)
 			}),
 		},
 		"DeleteQuestion": &graphql.Field{

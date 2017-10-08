@@ -37,6 +37,7 @@ type Base interface {
 	GetCategory(outcomeSetID, categoryID string, u auth.User) (impact.Category, error)
 	NewCategory(outcomeSetID, name, description string, aggregation impact.Aggregation, u auth.User) (impact.Category, error)
 	DeleteCategory(outcomeSetID, categoryID string, u auth.User) error
+	EditCategory(outcomeSetID, categoryID string, name, description string, aggregation impact.Aggregation, u auth.User) (impact.Category, error)
 	SetCategory(outcomeSetID, questionID, categoryID string, u auth.User) (impact.Question, error)
 	RemoveCategory(outcomeSetID, questionID string, u auth.User) (impact.Question, error)
 

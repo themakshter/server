@@ -102,3 +102,28 @@ func (m *mongo) DeleteCategory(outcomeSetID, categoryID string, u auth.User) err
 		},
 	})
 }
+
+func (m *mongo) EditCategory(outcomeSetID, categoryID string, name, description string, aggregation impact.Aggregation, u auth.User) (impact.Category, error) {
+	userOrg, err := u.Organisation()
+	if err != nil {
+		return impact.Category{}, err
+	}
+
+	col, closer := m.getOutcomeCollection()
+	defer closer()
+
+	if err := col.Update(bson.M{
+		"_id":            outcomeSetID,
+		"organisationID": userOrg,
+		"categories.id":  categoryID,
+	}, bson.M{
+		"$set": bson.M{
+			"categories.$.name":        name,
+			"categories.$.description": description,
+			"categories.$.aggregation": aggregation,
+		},
+	}); err != nil {
+		return impact.Category{}, err
+	}
+	return m.GetCategory(outcomeSetID, categoryID, u)
+}
