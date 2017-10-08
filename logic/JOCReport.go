@@ -8,9 +8,14 @@ import (
 
 	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
-	"github.com/impactasaurus/server/data"
 	"github.com/impactasaurus/server/log"
 )
+
+type JOCDatabase interface {
+	GetOutcomeSet(id string, u auth.User) (impact.OutcomeSet, error)
+	GetOSMeetingsForBeneficiary(beneficiary string, outcomeSetID string, u auth.User) ([]impact.Meeting, error)
+	GetOSMeetingsInTimeRange(start, end time.Time, outcomeSetID string, u auth.User) ([]impact.Meeting, error)
+}
 
 type firstAndLastMeetings struct {
 	first impact.Meeting
@@ -19,7 +24,7 @@ type firstAndLastMeetings struct {
 
 type jocReporter struct {
 	questionSetID       string
-	db                  data.Base
+	db                  JOCDatabase
 	u                   auth.User
 	globalWarnings      []string
 	os                  impact.OutcomeSet
@@ -239,7 +244,7 @@ func (j *jocReporter) getBeneficiaryIDs(firstAndLast map[string]firstAndLastMeet
 	return bens
 }
 
-func GetJOCServiceReport(start, end time.Time, questionSetID string, db data.Base, u auth.User) (*impact.JOCServiceReport, error) {
+func GetJOCServiceReport(start, end time.Time, questionSetID string, db JOCDatabase, u auth.User) (*impact.JOCServiceReport, error) {
 	os, err := db.GetOutcomeSet(questionSetID, u)
 	if err != nil {
 		return nil, err
