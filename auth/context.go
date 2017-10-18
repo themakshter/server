@@ -18,6 +18,8 @@ func newContextWithAuthError(ctx context.Context, err error) context.Context {
 	return context.WithValue(ctx, authErrorIndex, err)
 }
 
+// GetUser returns a User from the given context
+// If authentication failed, User will be nil and the auth error will be returned
 func GetUser(ctx context.Context) (User, error) {
 	user, uOk := ctx.Value(userIndex).(User)
 	err, eOk := ctx.Value(authErrorIndex).(error)
