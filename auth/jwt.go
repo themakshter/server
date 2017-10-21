@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"crypto/rsa"
 	"errors"
 	"fmt"
 
@@ -10,7 +11,7 @@ import (
 type jwt struct {
 	aud string
 	iss string
-	key string
+	key *rsa.PublicKey
 }
 
 type jwtUser struct {
@@ -20,7 +21,7 @@ type jwtUser struct {
 }
 
 // NewJWTAuthenticator returns an Authenticator which supports JWTs
-func NewJWTAuthenticator(aud, iss, key string) Authenticator {
+func NewJWTAuthenticator(aud, iss string, key *rsa.PublicKey) Authenticator {
 	return &jwt{
 		aud: aud,
 		iss: iss,
@@ -33,8 +34,7 @@ func (j *jwt) AuthUser(jwt string) (User, error) {
 		if _, ok := token.Method.(*jwtLib.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-
-		return jwtLib.ParseRSAPublicKeyFromPEM([]byte(j.key))
+		return j.key, nil
 	})
 	if err != nil {
 		return nil, err
@@ -66,4 +66,13 @@ func (j *jwtUser) Organisation() (string, error) {
 
 func (j *jwtUser) UserID() string {
 	return j.Subject
+}
+
+func (j *jwtUser) IsBeneficiary() bool {
+	ben, ok := j.AppMetadata[beneficiaryKey].(bool)
+	return ok && ben
+}
+func (j *jwtUser) GetAssessmentScope() (string, bool) {
+	assessmentID, ok := j.AppMetadata[assessmentScopeKey].(string)
+	return assessmentID, ok
 }
