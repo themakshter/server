@@ -5,6 +5,7 @@ import (
 
 	"strconv"
 
+	jwtLib "github.com/dgrijalva/jwt-go"
 	"github.com/impactasaurus/server/api"
 	"github.com/impactasaurus/server/auth"
 	"github.com/impactasaurus/server/data/mongo"
@@ -39,7 +40,12 @@ func main() {
 		log.Fatal(err, nil)
 	}
 
-	jwtAuthenticator := auth.NewJWTAuthenticator(aud, iss, publicKey)
+	pubKey, err := jwtLib.ParseRSAPublicKeyFromPEM([]byte(publicKey))
+	if err != nil {
+		log.Fatal(err, nil)
+	}
+
+	jwtAuthenticator := auth.NewJWTAuthenticator(aud, iss, pubKey)
 	cors := corsLib.New(corsLib.Options{
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
