@@ -33,6 +33,31 @@ func (m *MockUser) EXPECT() *MockUserMockRecorder {
 	return m.recorder
 }
 
+// GetAssessmentScope mocks base method
+func (m *MockUser) GetAssessmentScope() (string, bool) {
+	ret := m.ctrl.Call(m, "GetAssessmentScope")
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(bool)
+	return ret0, ret1
+}
+
+// GetAssessmentScope indicates an expected call of GetAssessmentScope
+func (mr *MockUserMockRecorder) GetAssessmentScope() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAssessmentScope", reflect.TypeOf((*MockUser)(nil).GetAssessmentScope))
+}
+
+// IsBeneficiary mocks base method
+func (m *MockUser) IsBeneficiary() bool {
+	ret := m.ctrl.Call(m, "IsBeneficiary")
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsBeneficiary indicates an expected call of IsBeneficiary
+func (mr *MockUserMockRecorder) IsBeneficiary() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsBeneficiary", reflect.TypeOf((*MockUser)(nil).IsBeneficiary))
+}
+
 // Organisation mocks base method
 func (m *MockUser) Organisation() (string, error) {
 	ret := m.ctrl.Call(m, "Organisation")
