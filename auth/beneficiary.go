@@ -4,16 +4,12 @@ import (
 	"crypto/rsa"
 	"time"
 
+	"errors"
 	jwtLib "github.com/dgrijalva/jwt-go"
 )
 
 const beneficiaryKey = "beneficiary"
 const assessmentScopeKey = "scope"
-
-// Generator generates beneficiary JWTs for use with self assessments
-type Generator interface {
-	GenerateBeneficiaryJWT(benID, meetingID string, expiry time.Duration) (string, error)
-}
 
 type benGen struct {
 	private *rsa.PrivateKey
@@ -46,4 +42,26 @@ func (b *benGen) GenerateBeneficiaryJWT(benID, meetingID string, expiry time.Dur
 		},
 	})
 	return token.SignedString(b.private)
+}
+
+type benAuth struct {
+	inner Authenticator
+}
+
+// NewBeneficiaryAuthenticator returns an Authenticator which authenticates only beneficiary JWTs
+func NewBeneficiaryAuthenticator(aud, iss string, key *rsa.PublicKey) Authenticator {
+	return &benAuth{
+		inner: NewJWTAuthenticator(aud, iss, key),
+	}
+}
+
+func (b *benAuth) AuthUser(jwt string) (User, error) {
+	u, err := b.inner.AuthUser(jwt)
+	if err != nil {
+		return u, err
+	}
+	if ben := u.IsBeneficiary(); ben == false {
+		return nil, errors.New("JWT was not a beneficiary JWT")
+	}
+	return u, err
 }

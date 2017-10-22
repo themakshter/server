@@ -24,6 +24,11 @@ type configAuth struct {
 	PublicKey string `required:"true"`
 }
 
+type configAuthGen struct {
+	configAuth
+	PrivateKey string `required:"true"`
+}
+
 type configNetwork struct {
 	Port int `envconfig:"PORT" default:"80"`
 }
@@ -37,12 +42,17 @@ type config struct {
 	Network configNetwork
 	Sentry  configErrorTracking
 	Auth0   configAuth
+	Local   configAuthGen
 }
 
 func mustGetConfiguration() *config {
 	c := &config{}
 	envconfig.MustProcess("", c)
-	// required to correctly parse the new lines in the public key
+	// have to process separately as embedded struct
+	envconfig.MustProcess("LOCAL", &c.Local.configAuth)
+	// required to correctly parse the new lines in the keys
 	c.Auth0.PublicKey = strings.Replace(c.Auth0.PublicKey, "\\n", "\n", -1)
+	c.Local.PublicKey = strings.Replace(c.Local.PublicKey, "\\n", "\n", -1)
+	c.Local.PrivateKey = strings.Replace(c.Local.PrivateKey, "\\n", "\n", -1)
 	return c
 }
