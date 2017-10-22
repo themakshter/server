@@ -12,6 +12,9 @@ server:
     - MONGO_URL=mongo
     - MONGO_PORT=27017
     - MONGO_DB=impactasaurus
+    - AUTH0_AUDIENCE=pfKiAOUJh5r6jCxRn5vUYq7odQsjPUKf
+    - AUTH0_ISSUER=https://impact.eu.auth0.com/
+    - AUTH0_PUBLICKEY=-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA72wlFrwLpR2RV5+TxcQU\niLqAqILTRLLWkYJnw+xePiuSIutXARkOcyKGfsunZ/1xZLe5rRuP06M/RTKCNBrq\nWwcSLEjL7Dh4JbrkDCGWx7YFcKzswZ3/3Gb2BtavpDhfg5RzaIBgnC+uyKAZvocA\n+YoKT3SPHm79vnmvQvpheMqfuNJSmw0mCXMcwqjJUQ2GLQsWfI2qeVybxcsRDqp5\n5kDGPVThrg8OGwJQDrHE4DopXWHWvUxKVS/e6eFN6qgibVP7vD3SnL0M7wgJDQuk\nTzskiF5Zzsgc86b2P6kQ1H2ryKp1jNDjkBCpr3F7KfNek/ADrSZVpxFSg4cve7X3\n+wIDAQAB\n-----END PUBLIC KEY-----
 graphiql:
   build: ./graphiql
   ports:

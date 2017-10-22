@@ -1,6 +1,9 @@
 package main
 
-import "github.com/kelseyhightower/envconfig"
+import (
+	"github.com/kelseyhightower/envconfig"
+	"strings"
+)
 
 type configMongo struct {
 	// User is the username of the mongodb user, leave blank if username and password is not required
@@ -15,6 +18,12 @@ type configMongo struct {
 	Database string `envconfig:"MONGO_DB" required:"true"`
 }
 
+type configAuth struct {
+	Audience  string `required:"true"`
+	Issuer    string `required:"true"`
+	PublicKey string `required:"true"`
+}
+
 type configNetwork struct {
 	Port int `envconfig:"PORT" default:"80"`
 }
@@ -27,10 +36,13 @@ type config struct {
 	Mongo   configMongo
 	Network configNetwork
 	Sentry  configErrorTracking
+	Auth0   configAuth
 }
 
 func mustGetConfiguration() *config {
 	c := &config{}
 	envconfig.MustProcess("", c)
+	// required to correctly parse the new lines in the public key
+	c.Auth0.PublicKey = strings.Replace(c.Auth0.PublicKey, "\\n", "\n", -1)
 	return c
 }
