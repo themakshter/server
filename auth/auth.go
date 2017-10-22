@@ -1,5 +1,7 @@
 package auth
 
+import "time"
+
 // User is an object which provides details about the user making the request to the API
 type User interface {
 	// Organisation gets the organisation the user belongs to
@@ -20,4 +22,9 @@ type User interface {
 // Authenticator takes a JWT, validates the JWT and generates a User object
 type Authenticator interface {
 	AuthUser(jwt string) (User, error)
+}
+
+// Generator generates beneficiary JWTs for use with self assessments
+type Generator interface {
+	GenerateBeneficiaryJWT(benID, meetingID string, expiry time.Duration) (string, error)
 }

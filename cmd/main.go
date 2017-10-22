@@ -5,7 +5,6 @@ import (
 
 	"strconv"
 
-	jwtLib "github.com/dgrijalva/jwt-go"
 	"github.com/impactasaurus/server/api"
 	"github.com/impactasaurus/server/auth"
 	"github.com/impactasaurus/server/data/mongo"
@@ -28,22 +27,15 @@ func main() {
 		log.Fatal(err, nil)
 	}
 
-	auth0Auth := mustGetAuthenticator(c.Auth0)
+	auth0Auth := auth.NewJWTAuthenticator(c.Auth0.Audience, c.Auth0.Issuer, auth.MustParseRSAPublicKeyFromPEM(c.Auth0.PublicKey))
+	localAuth := auth.NewBeneficiaryAuthenticator(c.Local.Audience, c.Local.Issuer, auth.MustParseRSAPublicKeyFromPEM(c.Local.PublicKey))
 	cors := corsLib.New(corsLib.Options{
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 	})
-	http.Handle("/v1/graphql", cors.Handler(auth.Middleware(v1Handler, auth0Auth)))
+	http.Handle("/v1/graphql", cors.Handler(auth.Middleware(v1Handler, auth0Auth, localAuth)))
 
 	http.ListenAndServe(":"+strconv.Itoa(c.Network.Port), nil)
-}
-
-func mustGetAuthenticator(c configAuth) auth.Authenticator {
-	pubKey, err := jwtLib.ParseRSAPublicKeyFromPEM([]byte(c.PublicKey))
-	if err != nil {
-		log.Fatal(err, nil)
-	}
-	return auth.NewJWTAuthenticator(c.Audience, c.Issuer, pubKey)
 }
 
 func mustConfigureLogger(c *config) {
