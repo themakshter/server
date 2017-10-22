@@ -1,10 +1,12 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
+	"github.com/impactasaurus/server/auth"
 	"github.com/impactasaurus/server/data"
-	"net/http"
 )
 
 type meetingTypes struct {
@@ -13,6 +15,7 @@ type meetingTypes struct {
 	categoryAggregate *graphql.Object
 	aggregates        *graphql.Object
 	meetingType       *graphql.Object
+	remoteMeetingType *graphql.Object
 }
 
 type organisationTypes struct {
@@ -32,12 +35,15 @@ type reportTypes struct {
 }
 
 type v1 struct {
-	db data.Base
+	db      data.Base
+	authGen auth.Generator
 }
 
-func NewV1(db data.Base) (http.Handler, error) {
+// NewV1 returns a http.Handler which serves the V1 graphql
+func NewV1(db data.Base, authGen auth.Generator) (http.Handler, error) {
 	v := &v1{
-		db: db,
+		db:      db,
+		authGen: authGen,
 	}
 	orgTypes := v.initOrgTypes()
 	osTypes := v.initOutcomeSetTypes(orgTypes)

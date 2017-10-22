@@ -22,7 +22,8 @@ func main() {
 		log.Fatal(err, nil)
 	}
 
-	v1Handler, err := api.NewV1(db)
+	beneficiaryAuthGen := auth.NewBeneficiaryJWTGenerator(c.Local.Audience, c.Local.Issuer, auth.MustParseRSAPrivateKeyFromPEM(c.Local.PrivateKey))
+	v1Handler, err := api.NewV1(db, beneficiaryAuthGen)
 	if err != nil {
 		log.Fatal(err, nil)
 	}

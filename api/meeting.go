@@ -2,11 +2,12 @@ package api
 
 import (
 	"errors"
+	"time"
+
 	"github.com/graphql-go/graphql"
 	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
 	"github.com/impactasaurus/server/logic"
-	"time"
 )
 
 func (v *v1) initMeetingTypes(orgTypes organisationTypes, osTypes outcomeSetTypes) meetingTypes {
@@ -196,6 +197,22 @@ func (v *v1) initMeetingTypes(orgTypes organisationTypes, osTypes outcomeSetType
 			},
 		},
 	})
+
+	ret.remoteMeetingType = graphql.NewObject(graphql.ObjectConfig{
+		Name:        "RemoteMeeting",
+		Description: "A meeting along with a JWT",
+		Fields: graphql.Fields{
+			"JWT": &graphql.Field{
+				Type:        graphql.NewNonNull(graphql.String),
+				Description: "A beneificiary JWT, this can be used to complete the meeting",
+			},
+			"meeting": &graphql.Field{
+				Type:        graphql.NewNonNull(ret.meetingType),
+				Description: "The meeting",
+			},
+		},
+	})
+
 	return ret
 }
 
@@ -258,6 +275,41 @@ func (v *v1) getMeetingMutations(meetTypes meetingTypes) graphql.Fields {
 					return nil, err
 				}
 				return v.db.NewMeeting(beneficiaryID, outcomeSetID, parsedConducted, u)
+			}),
+		},
+		"AddRemoteMeeting": &graphql.Field{
+			Type:        meetTypes.remoteMeetingType,
+			Description: "Create a new meeting which will be sent to the beneficiary to complete",
+			Args: graphql.FieldConfigArgument{
+				"beneficiaryID": &graphql.ArgumentConfig{
+					Type:        graphql.NewNonNull(graphql.String),
+					Description: "The ID associated with the beneficiary being interviewed",
+				},
+				"outcomeSetID": &graphql.ArgumentConfig{
+					Type:        graphql.NewNonNull(graphql.String),
+					Description: "The ID of the outcome set being used",
+				},
+				"daysToComplete": &graphql.ArgumentConfig{
+					Type:        graphql.NewNonNull(graphql.Int),
+					Description: "Number of days the beneficiary has to complete the assessment",
+				},
+			},
+			Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
+				beneficiaryID := p.Args["beneficiaryID"].(string)
+				outcomeSetID := p.Args["outcomeSetID"].(string)
+				daysToComplete := p.Args["daysToComplete"].(int)
+				meeting, err := v.db.NewMeeting(beneficiaryID, outcomeSetID, time.Now(), u)
+				if err != nil {
+					return nil, err
+				}
+				jwt, err := v.authGen.GenerateBeneficiaryJWT(beneficiaryID, meeting.ID, (time.Hour*24)*time.Duration(daysToComplete))
+				if err != nil {
+					return nil, err
+				}
+				return map[string]interface{}{
+					"JWT":     jwt,
+					"meeting": meeting,
+				}, nil
 			}),
 		},
 		"AddLikertAnswer": &graphql.Field{
