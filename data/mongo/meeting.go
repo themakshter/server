@@ -1,14 +1,50 @@
 package mongo
 
 import (
+	"errors"
+	"time"
+
 	impact "github.com/impactasaurus/server"
 	"github.com/impactasaurus/server/auth"
 	"github.com/impactasaurus/server/data"
 	"github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"time"
 )
+
+// meetingQuery adds the addQueryFields method to bson.M
+type meetingQuery bson.M
+
+// addQueryFields ensures that additions to a bson.M does not overwrite previous data
+func (m meetingQuery) addQueryFields(fields map[string]interface{}) error {
+	for k, v := range fields {
+		if forcedV, set := m[k]; set && forcedV != v {
+			return errors.New("Not authorized to make this request")
+		}
+		m["k"] = v
+	}
+	return nil
+}
+
+func enforceMeetingReadPermissions(u auth.User) (meetingQuery, error) {
+	if u.IsBeneficiary() {
+		meeting, ok := u.GetAssessmentScope()
+		if !ok {
+			return nil, errors.New("Not authorized to access assessment")
+		}
+		return meetingQuery{
+			"_id":         meeting,
+			"beneficiary": u.UserID(),
+		}, nil
+	}
+	userOrg, err := u.Organisation()
+	if err != nil {
+		return nil, err
+	}
+	return meetingQuery{
+		"organisationID": userOrg,
+	}, nil
+}
 
 func (m *mongo) GetMeeting(id string, u auth.User) (impact.Meeting, error) {
 	meeting := impact.Meeting{}
@@ -16,15 +52,17 @@ func (m *mongo) GetMeeting(id string, u auth.User) (impact.Meeting, error) {
 	col, closer := m.getMeetingCollection()
 	defer closer()
 
-	userOrg, err := u.Organisation()
+	query, err := enforceMeetingReadPermissions(u)
 	if err != nil {
-		return meeting, err
+		return impact.Meeting{}, err
+	}
+	if err = query.addQueryFields(map[string]interface{}{
+		"_id": id,
+	}); err != nil {
+		return impact.Meeting{}, err
 	}
 
-	err = col.Find(bson.M{
-		"_id":            id,
-		"organisationID": userOrg,
-	}).One(&meeting)
+	err = col.Find(query).One(&meeting)
 	if err != nil {
 		if mgo.ErrNotFound == err {
 			return meeting, data.NewNotFoundError("Meeting")
@@ -34,53 +72,59 @@ func (m *mongo) GetMeeting(id string, u auth.User) (impact.Meeting, error) {
 	return meeting, nil
 }
 
-type meetingGetter func(col *mgo.Collection, userOrg string) ([]impact.Meeting, error)
+type meetingGetter func(col *mgo.Collection, query meetingQuery) ([]impact.Meeting, error)
 
 func (m *mongo) getMeetings(inner meetingGetter, u auth.User) ([]impact.Meeting, error) {
 	col, closer := m.getMeetingCollection()
 	defer closer()
 
-	userOrg, err := u.Organisation()
+	baseQuery, err := enforceMeetingReadPermissions(u)
 	if err != nil {
 		return nil, err
 	}
-	return inner(col, userOrg)
+	return inner(col, baseQuery)
 }
 
 func (m *mongo) GetMeetingsForBeneficiary(beneficiary string, u auth.User) ([]impact.Meeting, error) {
-	return m.getMeetings(func(col *mgo.Collection, userOrg string) ([]impact.Meeting, error) {
+	return m.getMeetings(func(col *mgo.Collection, query meetingQuery) ([]impact.Meeting, error) {
+		if err := query.addQueryFields(map[string]interface{}{
+			"beneficiary": beneficiary,
+		}); err != nil {
+			return nil, err
+		}
 		results := []impact.Meeting{}
-		err := col.Find(bson.M{
-			"beneficiary":    beneficiary,
-			"organisationID": userOrg,
-		}).All(&results)
+		err := col.Find(query).All(&results)
 		return results, err
 	}, u)
 }
 
 func (m *mongo) GetOSMeetingsForBeneficiary(beneficiary string, outcomeSetID string, u auth.User) ([]impact.Meeting, error) {
-	return m.getMeetings(func(col *mgo.Collection, userOrg string) ([]impact.Meeting, error) {
+	return m.getMeetings(func(col *mgo.Collection, query meetingQuery) ([]impact.Meeting, error) {
+		if err := query.addQueryFields(map[string]interface{}{
+			"beneficiary":  beneficiary,
+			"outcomeSetID": outcomeSetID,
+		}); err != nil {
+			return nil, err
+		}
 		results := []impact.Meeting{}
-		err := col.Find(bson.M{
-			"beneficiary":    beneficiary,
-			"organisationID": userOrg,
-			"outcomeSetID":   outcomeSetID,
-		}).All(&results)
+		err := col.Find(query).All(&results)
 		return results, err
 	}, u)
 }
 
 func (m *mongo) GetOSMeetingsInTimeRange(start, end time.Time, outcomeSetID string, u auth.User) ([]impact.Meeting, error) {
-	return m.getMeetings(func(col *mgo.Collection, userOrg string) ([]impact.Meeting, error) {
-		results := []impact.Meeting{}
-		err := col.Find(bson.M{
-			"organisationID": userOrg,
-			"outcomeSetID":   outcomeSetID,
+	return m.getMeetings(func(col *mgo.Collection, query meetingQuery) ([]impact.Meeting, error) {
+		if err := query.addQueryFields(map[string]interface{}{
+			"outcomeSetID": outcomeSetID,
 			"conducted": bson.M{
 				"$gte": start,
 				"$lte": end,
 			},
-		}).All(&results)
+		}); err != nil {
+			return nil, err
+		}
+		results := []impact.Meeting{}
+		err := col.Find(query).All(&results)
 		return results, err
 	}, u)
 }
