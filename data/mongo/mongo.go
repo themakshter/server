@@ -1,10 +1,13 @@
 package mongo
 
 import (
+	"errors"
 	"fmt"
+	"time"
+
 	"github.com/impactasaurus/server/data"
 	"gopkg.in/mgo.v2"
-	"time"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type mongo struct {
@@ -40,10 +43,24 @@ func (m *mongo) ensureIndexes() error {
 	defer osCloser()
 
 	if err := osCol.EnsureIndex(mgo.Index{
-		Key:    []string{"organisationID", "name"},
+		Key: []string{"organisationID", "name"},
 	}); err != nil {
 		return err
 	}
 
+	return nil
+}
+
+// query adds the addQueryFields method to bson.M
+type query bson.M
+
+// addQueryFields ensures that additions to a bson.M does not overwrite previous data
+func (q query) addQueryFields(fields map[string]interface{}) error {
+	for k, v := range fields {
+		if forcedV, set := q[k]; set && forcedV != v {
+			return errors.New("Not authorized to make this request")
+		}
+		q["k"] = v
+	}
 	return nil
 }
