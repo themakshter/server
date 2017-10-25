@@ -4,10 +4,7 @@ services:
  - docker
 go:
  - '1.9.1'
-before_install:
- - go get -u github.com/kardianos/govendor
-install:
- - govendor sync
+install: true # skip install as testing done within docker
 script: make test
 deploy:
   provider: heroku
