@@ -1,4 +1,4 @@
-# Impactasaurus Server
+# Impactasaurus Server [![Build Status](https://travis-ci.org/impactasaurus/server.svg?branch=master)](https://travis-ci.org/impactasaurus/server) [![Go Report Card](https://goreportcard.com/badge/github.com/impactasaurus/server)](https://goreportcard.com/report/github.com/impactasaurus/server) [![GoDoc](https://godoc.org/github.com/impactasaurus/server?status.svg)](https://godoc.org/github.com/impactasaurus/server)
 
 Impactasaurus is changing the way charities measure and report on social impact. We are building a free, open source, easy to use, configurable impact measure tool, which is compatible with any CRM. Read more about Impactasaurus at https://impactasaurus.org.
 

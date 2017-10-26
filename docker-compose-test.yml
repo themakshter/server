@@ -1,12 +1,9 @@
 mongo:
   image: mongo:latest
   command: mongod --smallfiles
-  ports:
-    - "27017:27017"
+
 server:
   build: .
-  ports:
-    - "8081:80"
   links:
     - "mongo"
   environment:
@@ -20,11 +17,14 @@ server:
     - LOCAL_ISSUER=http://local-impactasaurus.com/
     - LOCAL_PUBLICKEY=-----BEGIN PUBLIC KEY-----\nMIIBITANBgkqhkiG9w0BAQEFAAOCAQ4AMIIBCQKCAQB58GYxWbnqNDIBoply7teZ\ngAabfJrdRr2YeaqO28RJDDAOa2fnWQm6Mf4ksR9S8J2AcaO8LUvGF33vekbdQ6Yc\nRE3SL8DjzDailqEAVkA1WY/DQA4GJiyJ5BgV6T/P6rtPpPBwTcrnZfjwpKoZSF4u\nVrpMFUQphdd4OmlBiAqWJAZ29DfNlgUoTGqP5U+7xOO221eiuKQyZLq0DqNToM/E\nxgBJjQHJbtPmdtYjw4qukXtD3QG1JRwGvVKuHCRpfbuhu/xT5zGRag21RU7iC9b0\nUAd6hj3hZCzBCANg5LfTo5L3pgmvUefn5efJ+0kRDmALZAUh3FNdENny3Y5r33An\nAgMBAAE=\n-----END PUBLIC KEY-----
     - LOCAL_PRIVATEKEY=-----BEGIN RSA PRIVATE KEY-----\nMIIEogIBAAKCAQB58GYxWbnqNDIBoply7teZgAabfJrdRr2YeaqO28RJDDAOa2fn\nWQm6Mf4ksR9S8J2AcaO8LUvGF33vekbdQ6YcRE3SL8DjzDailqEAVkA1WY/DQA4G\nJiyJ5BgV6T/P6rtPpPBwTcrnZfjwpKoZSF4uVrpMFUQphdd4OmlBiAqWJAZ29DfN\nlgUoTGqP5U+7xOO221eiuKQyZLq0DqNToM/ExgBJjQHJbtPmdtYjw4qukXtD3QG1\nJRwGvVKuHCRpfbuhu/xT5zGRag21RU7iC9b0UAd6hj3hZCzBCANg5LfTo5L3pgmv\nUefn5efJ+0kRDmALZAUh3FNdENny3Y5r33AnAgMBAAECggEAL6UN2QSNDwS78UWe\nHXlTRofujPxf6kvEsvn++XjHNh+L+2ZeH9f7ZAQ6oA2RBrA7aj980X8FV25AZ7zo\nSXYwRmUt3w2HmbpmMpsWZ3JL/kxzTsANeruZtXspKg6MP2ohLBpvVAIhYM7IOQat\n69kJ66M5gZbhnjPMoA56p/9G26jDVi26pc2rxid3FZFN7Y4yVZ9D2nHN429YpcLT\nP6V+MGFgjrEGS8vV9dn8tPTzKyoD7YoopXKv5yS6OEpEvK3ZVcad448nUSzvzMRQ\nUQrTGBFCqp/PYYUAifY41Be7K+np1abDsPIKxbj6MbtFCNnhVE/VrTgQY77HdtRM\ncwLMcQKBgQDjjmflHCEWZ6WA5kw9QpftptcbxL3PqqI3mG3f9mpCSB2KCzuzQ4fP\nbyjWofkG8vlI3VEm+xDgBgjZkoh/l47FbMW0cRs5jsbDB2R250UILTGPfBp+lRDC\nNnNKu+renyOzhimxhbddTYYqqE2miaJ6cwRq0kmw+3JbsBn+ZriQnwKBgQCJLlah\nIuwsm31huCZrJoboXj05OIIre/DRk0zvm3f59/LctvgC4rIatoxD9XZ/DYzeelwq\nY5bgCiLW2hb6RvcweYYVt8cw+z9RvYC9Np5q2zCi7FnfQZCg/J9FPish4PYkm9aQ\n+EoyOsM7f/pThPaG8vyuEJzTT1KKuKdv/uvLeQKBgGrHq0cecQRTdJ1M9B+W/TX+\noVgddThaiK5v77c1qV0a/AmIBeaz3KnhLpew/+tb3tBrUiZpj9yf2E1Ibpb45n0L\n8qYeoTjcH7bq5CDLm2Af3O7IvKIDjw6jgGxkS+1VXepjHXN5HLdCpp+jxHROh5jQ\nGhWKQhwzkdEmjLwNNbRfAoGAEscoDpikMZr7N8QoZiR49RfpU4rbrq4hkd6S+n2S\nl8IMGZBmNKbpcGSqoKbaGJw3O0EOmrLVNUfN6xEhchMCxTztUM2+U4Mg8MR6+euf\nFct5ReQKjVgBPzg1aRoQd2u+5dX7Mg76wRNwJBXpo0MhJ+ndEsqtXPOPvfN24ArK\nJikCgYEAyrRmWCrB53aIQfxZ/RhoMJfDG027nwUX2p2m1RC9m1jXyX0UmBjGghwg\nuE2wMRZ5kBrpAS+5FOE0huapWeB8JqiePqlDnmSH/bMF4BmVGnZXaFL4jhStx8sM\numqQS/zH8hA/RlQvOREAjd5yF/3onVKeK3Qbnr2Y98uQcsL9NT8=\n-----END RSA PRIVATE KEY-----
-graphiql:
-  build: ./graphiql
-  ports:
-    - "8082:80"
+
+tester:
+  build: .
+  dockerfile: Dockerfile-tester
   links:
-    - "server:local-impactasaurus.com"
-
-
+    - "mongo"
+    - "server"
+  environment:
+    - MONGO_URL=mongo
+    - MONGO_PORT=27017
+    - MONGO_DB=impactasaurus
