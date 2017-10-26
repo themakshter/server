@@ -8,4 +8,4 @@ RUN govendor sync
 COPY . .
 
 WORKDIR /go/src/github.com/impactasaurus
-CMD sleep 5 && go test ./... --tags=integration
+CMD sleep 5 && go test -cover ./... --tags=integration
