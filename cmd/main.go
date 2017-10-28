@@ -36,7 +36,9 @@ func main() {
 	})
 	http.Handle("/v1/graphql", cors.Handler(auth.Middleware(v1Handler, auth0Auth, localAuth)))
 
-	http.ListenAndServe(":"+strconv.Itoa(c.Network.Port), nil)
+	if err = http.ListenAndServe(":"+strconv.Itoa(c.Network.Port), nil); err != nil {
+		log.Fatal(err, nil)
+	}
 }
 
 func mustConfigureLogger(c *config) {
