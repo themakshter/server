@@ -275,3 +275,73 @@ func TestGetOSMeetingInTimeRange(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, meetings, 0)
 }
+
+func TestNewAnswer(t *testing.T) {
+	target := getTarget(t)
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	os1Meeting := seedMeeting(t, mockCtrl, target, "org1", "user1", "ben1", "os1", time.Unix(1, 0))
+	os2Meeting := seedMeeting(t, mockCtrl, target, "org1", "user2", "ben1", "os2", time.Unix(2, 0))
+	seedMeeting(t, mockCtrl, target, "org2", "user3", "ben3", "os3", time.Unix(3, 0))
+
+	// organisation user adding an answer
+	mockUser := mock.NewMockUser(mockCtrl)
+	mockUser.EXPECT().IsBeneficiary().Return(false).Times(2)
+	mockUser.EXPECT().Organisation().Return("org1", nil).Times(2)
+	_, err := target.NewAnswer(os1Meeting.ID, impact.Answer{}, mockUser)
+	require.NoError(t, err)
+
+	// organisation user trying to add answer to another organisation's meeting
+	mockUser = mock.NewMockUser(mockCtrl)
+	mockUser.EXPECT().IsBeneficiary().Return(false)
+	mockUser.EXPECT().Organisation().Return("org2", nil)
+	_, err = target.NewAnswer(os1Meeting.ID, impact.Answer{}, mockUser)
+	require.Error(t, err)
+
+	// Non beneficiary user without an organisation
+	mockUser = mock.NewMockUser(mockCtrl)
+	mockUser.EXPECT().IsBeneficiary().Return(false)
+	mockUser.EXPECT().Organisation().Return("", errors.New("err"))
+	_, err = target.NewAnswer(os1Meeting.ID, impact.Answer{}, mockUser)
+	require.Error(t, err)
+
+	// beneficiary user editing their scoped meeting
+	mockUser = mock.NewMockUser(mockCtrl)
+	mockUser.EXPECT().IsBeneficiary().Return(true).Times(2)
+	mockUser.EXPECT().GetAssessmentScope().Return(os1Meeting.ID, true).Times(2)
+	mockUser.EXPECT().UserID().Return("ben1").Times(2)
+	_, err = target.NewAnswer(os1Meeting.ID, impact.Answer{}, mockUser)
+	require.NoError(t, err)
+
+	// beneficiary user editing their scoped meeting but with a non matching user id
+	mockUser = mock.NewMockUser(mockCtrl)
+	mockUser.EXPECT().IsBeneficiary().Return(true)
+	mockUser.EXPECT().GetAssessmentScope().Return(os1Meeting.ID, true)
+	mockUser.EXPECT().UserID().Return("ben2")
+	_, err = target.NewAnswer(os1Meeting.ID, impact.Answer{}, mockUser)
+	require.Error(t, err)
+
+	// beneficiary user trying to edit another of their meeting
+	mockUser = mock.NewMockUser(mockCtrl)
+	mockUser.EXPECT().IsBeneficiary().Return(true)
+	mockUser.EXPECT().GetAssessmentScope().Return(os2Meeting.ID, true)
+	mockUser.EXPECT().UserID().Return("ben1")
+	_, err = target.NewAnswer(os1Meeting.ID, impact.Answer{}, mockUser)
+	require.Error(t, err)
+
+	// beneficiary user with unknown scope
+	mockUser = mock.NewMockUser(mockCtrl)
+	mockUser.EXPECT().IsBeneficiary().Return(true)
+	mockUser.EXPECT().GetAssessmentScope().Return("unknown", true)
+	mockUser.EXPECT().UserID().Return("ben1")
+	_, err = target.NewAnswer(os1Meeting.ID, impact.Answer{}, mockUser)
+	require.Error(t, err)
+
+	// beneficiary user without assessment scope
+	mockUser = mock.NewMockUser(mockCtrl)
+	mockUser.EXPECT().IsBeneficiary().Return(true)
+	mockUser.EXPECT().GetAssessmentScope().Return("", false)
+	_, err = target.NewAnswer(os1Meeting.ID, impact.Answer{}, mockUser)
+	require.Error(t, err)
+}
