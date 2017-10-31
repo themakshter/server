@@ -533,6 +533,10 @@ func (v *v1) getOSMutations(osTypes outcomeSetTypes) graphql.Fields {
 					Type:        graphql.String,
 					Description: "Label associated with the maximum value of the likert scale",
 				},
+				"categoryID": &graphql.ArgumentConfig{
+					Type:        graphql.String,
+					Description: "An optional category to assign to the question after it has been created. If this fails, the question will still have been created but without a category.",
+				},
 			},
 			Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
 				id := p.Args["outcomeSetID"].(string)
@@ -542,15 +546,24 @@ func (v *v1) getOSMutations(osTypes outcomeSetTypes) graphql.Fields {
 				minLabel := getNullableString(p.Args, "minLabel")
 				maxLabel := getNullableString(p.Args, "maxLabel")
 				description := getNullableString(p.Args, "description")
-				if _, err := v.db.NewQuestion(id, question, description, impact.LIKERT, map[string]interface{}{
+				q, err := v.db.NewQuestion(id, question, description, impact.LIKERT, map[string]interface{}{
 					"minValue": minValue,
 					"maxValue": maxValue,
 					"minLabel": minLabel,
 					"maxLabel": maxLabel,
-				}, u); err != nil {
+				}, u)
+				if err != nil {
 					return nil, err
 				}
-				return v.db.GetOutcomeSet(id, u)
+				if catID := getNullableString(p.Args, "categoryID"); catID != "" {
+					_, err = v.db.SetCategory(id, q.ID, catID, u)
+				}
+				os, errOS := v.db.GetOutcomeSet(id, u)
+				if errOS != nil {
+					return nil, errOS
+				}
+				// returning err to capture any errors resulting from setting the question category
+				return os, err
 			}),
 		},
 		"EditLikertQuestion": &graphql.Field{
