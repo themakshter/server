@@ -12,7 +12,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func enforceMeetingReadPermissions(u auth.User) (query, error) {
+func enforceMeetingPermissions(u auth.User) (query, error) {
 	if u.IsBeneficiary() {
 		meeting, ok := u.GetAssessmentScope()
 		if !ok {
@@ -38,7 +38,7 @@ func (m *mongo) GetMeeting(id string, u auth.User) (impact.Meeting, error) {
 	col, closer := m.getMeetingCollection()
 	defer closer()
 
-	query, err := enforceMeetingReadPermissions(u)
+	query, err := enforceMeetingPermissions(u)
 	if err != nil {
 		return impact.Meeting{}, err
 	}
@@ -64,7 +64,7 @@ func (m *mongo) getMeetings(inner meetingGetter, u auth.User) ([]impact.Meeting,
 	col, closer := m.getMeetingCollection()
 	defer closer()
 
-	baseQuery, err := enforceMeetingReadPermissions(u)
+	baseQuery, err := enforceMeetingPermissions(u)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func (m *mongo) NewMeeting(beneficiaryID, outcomeSetID string, conducted time.Ti
 }
 
 func (m *mongo) NewAnswer(meetingID string, answer impact.Answer, u auth.User) (impact.Meeting, error) {
-	userOrg, err := u.Organisation()
+	q, err := enforceMeetingPermissions(u)
 	if err != nil {
 		return impact.Meeting{}, err
 	}
@@ -150,10 +150,13 @@ func (m *mongo) NewAnswer(meetingID string, answer impact.Answer, u auth.User) (
 	col, closer := m.getMeetingCollection()
 	defer closer()
 
-	if err := col.Update(bson.M{
-		"_id":            meetingID,
-		"organisationID": userOrg,
-	}, bson.M{
+	if err := q.addQueryFields(map[string]interface{}{
+		"_id": meetingID,
+	}); err != nil {
+		return impact.Meeting{}, err
+	}
+
+	if err := col.Update(q, bson.M{
 		"$push": bson.M{
 			"answers": answer,
 		},
