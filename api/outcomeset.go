@@ -473,15 +473,15 @@ func (v *v1) getOSMutations(osTypes outcomeSetTypes) graphql.Fields {
 			Description: "Set or remove the category associated with a question.",
 			Args: graphql.FieldConfigArgument{
 				"outcomeSetID": &graphql.ArgumentConfig{
-					Type:        graphql.NewNonNull(graphql.String),
+					Type:        graphql.NewNonNull(graphql.ID),
 					Description: "The ID of the outcomeset",
 				},
 				"questionID": &graphql.ArgumentConfig{
-					Type:        graphql.NewNonNull(graphql.String),
+					Type:        graphql.NewNonNull(graphql.ID),
 					Description: "The ID of the question",
 				},
 				"categoryID": &graphql.ArgumentConfig{
-					Type:        graphql.String,
+					Type:        graphql.ID,
 					Description: "The ID of the category. If NULL, the category associated with the question is removed",
 				},
 			},
@@ -575,7 +575,7 @@ func (v *v1) getOSMutations(osTypes outcomeSetTypes) graphql.Fields {
 					Description: "The ID of the outcomeset",
 				},
 				"questionID": &graphql.ArgumentConfig{
-					Type:        graphql.NewNonNull(graphql.String),
+					Type:        graphql.NewNonNull(graphql.ID),
 					Description: "The ID of the question",
 				},
 				"question": &graphql.ArgumentConfig{
