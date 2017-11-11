@@ -22,8 +22,8 @@ func (nf *notFound) Error() string {
 }
 
 type Base interface {
-	NewOutcomeSet(name, description string, u auth.User) (impact.OutcomeSet, error)
-	EditOutcomeSet(id, name, description string, u auth.User) (impact.OutcomeSet, error)
+	NewOutcomeSet(name, description string, skippable bool, u auth.User) (impact.OutcomeSet, error)
+	EditOutcomeSet(id, name, description string, skippable bool, u auth.User) (impact.OutcomeSet, error)
 	GetOutcomeSet(id string, u auth.User) (impact.OutcomeSet, error)
 	GetOutcomeSets(u auth.User) ([]impact.OutcomeSet, error)
 	DeleteOutcomeSet(id string, u auth.User) error

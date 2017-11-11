@@ -232,6 +232,10 @@ func (v *v1) initOutcomeSetTypes(orgTypes organisationTypes) outcomeSetTypes {
 				Type:        graphql.String,
 				Description: "Information about the outcome set",
 			},
+			"skippable": &graphql.Field{
+				Type:        graphql.Boolean,
+				Description: "Determine if the questions of the outcome set can be skipped or not. Defaulted to false",
+			},
 			"questions": &graphql.Field{
 				Type:        graphql.NewNonNull(graphql.NewList(ret.questionInterface)),
 				Description: "Questions associated with the outcome set",
@@ -285,11 +289,16 @@ func (v *v1) getOSMutations(osTypes outcomeSetTypes) graphql.Fields {
 					Type:        graphql.String,
 					Description: "An optional description",
 				},
+				"skippable": &graphql.ArgumentConfig{
+					Type:        graphql.Boolean,
+					Description: "Determine if the questions of the outcome set can be skipped or not. Defaulted to false",
+				},
 			},
 			Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
 				name := p.Args["name"].(string)
 				description := getNullableString(p.Args, "description")
-				return v.db.NewOutcomeSet(name, description, u)
+				skippable := getFalseOrBoolean(p.Args, "skippable")
+				return v.db.NewOutcomeSet(name, description, skippable, u)
 			}),
 		},
 		"EditOutcomeSet": &graphql.Field{
@@ -308,12 +317,17 @@ func (v *v1) getOSMutations(osTypes outcomeSetTypes) graphql.Fields {
 					Type:        graphql.String,
 					Description: "The new description to apply to the outcomeset, if left null, any existing description will be removed",
 				},
+				"skippable": &graphql.ArgumentConfig{
+					Type:        graphql.Boolean,
+					Description: "The new  boolean value to determine if the questions of the outcome set can be skipped or not. Defaulted to false",
+				},
 			},
 			Resolve: userRestrictedResolver(func(p graphql.ResolveParams, u auth.User) (interface{}, error) {
 				id := p.Args["outcomeSetID"].(string)
 				name := p.Args["name"].(string)
 				description := getNullableString(p.Args, "description")
-				return v.db.EditOutcomeSet(id, name, description, u)
+				skippable := getFalseOrBoolean(p.Args, "skippable")
+				return v.db.EditOutcomeSet(id, name, description, skippable, u)
 			}),
 		},
 		"DeleteOutcomeSet": &graphql.Field{

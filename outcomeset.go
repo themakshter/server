@@ -36,6 +36,7 @@ type OutcomeSet struct {
 	Questions      []Question `json:"questions"`
 	Categories     []Category `json:"categories"`
 	Deleted        bool       `json:"deleted"`
+	Skippable      bool       `json:"skippable"`
 }
 
 func (os *OutcomeSet) GetCategory(catID string) *Category {

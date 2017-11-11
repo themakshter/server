@@ -7,7 +7,7 @@ import (
 	"github.com/impactasaurus/server/auth"
 	"github.com/impactasaurus/server/data"
 	uuid "github.com/satori/go.uuid"
-	"gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -53,7 +53,7 @@ func (m *mongo) GetOutcomeSets(u auth.User) ([]impact.OutcomeSet, error) {
 	return results, err
 }
 
-func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (impact.OutcomeSet, error) {
+func (m *mongo) NewOutcomeSet(name, description string, skippable bool, u auth.User) (impact.OutcomeSet, error) {
 	userOrg, err := u.Organisation()
 	if err != nil {
 		return impact.OutcomeSet{}, err
@@ -82,6 +82,7 @@ func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (impact.Out
 		Description:    description,
 		Name:           name,
 		OrganisationID: userOrg,
+		Skippable:      skippable,
 	}
 	if err := col.Insert(newOS); err != nil {
 		return impact.OutcomeSet{}, err
@@ -89,7 +90,7 @@ func (m *mongo) NewOutcomeSet(name, description string, u auth.User) (impact.Out
 	return m.GetOutcomeSet(id.String(), u)
 }
 
-func (m *mongo) EditOutcomeSet(id, name, description string, u auth.User) (impact.OutcomeSet, error) {
+func (m *mongo) EditOutcomeSet(id, name, description string, skippable bool, u auth.User) (impact.OutcomeSet, error) {
 	userOrg, err := u.Organisation()
 	if err != nil {
 		return impact.OutcomeSet{}, err
@@ -105,6 +106,7 @@ func (m *mongo) EditOutcomeSet(id, name, description string, u auth.User) (impac
 		"$set": bson.M{
 			"name":        name,
 			"description": description,
+			"skippable":   skippable,
 		},
 	}); err != nil {
 		return impact.OutcomeSet{}, err

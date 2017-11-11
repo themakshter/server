@@ -25,3 +25,11 @@ func getNullableInt(input map[string]interface{}, key string) int {
 	}
 	return s
 }
+
+func getFalseOrBoolean(input map[string]interface{}, key string) bool {
+	givenValue := input[key]
+	if givenValue != nil {
+		return givenValue.(bool)
+	}
+	return false
+}
