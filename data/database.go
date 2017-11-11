@@ -50,6 +50,6 @@ type Base interface {
 	NewMeeting(beneficiaryID, outcomeSetID string, conducted time.Time, u auth.User) (impact.Meeting, error)
 	NewAnswer(meetingID string, answer impact.Answer, u auth.User) (impact.Meeting, error)
 
-	SaveJWT(jti string, jwt string) error
+	SaveJWT(jti string, jwt string, u auth.User) error
 	GetJWT(jti string) (string, error)
 }

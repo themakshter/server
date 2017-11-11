@@ -1,22 +1,29 @@
 package mongo
 
 import (
+	"time"
+
+	"github.com/impactasaurus/server/auth"
 	"github.com/impactasaurus/server/data"
 	"gopkg.in/mgo.v2"
 )
 
 type jwtKV struct {
-	JTI string `bson:"_id"`
-	JWT string `bson:"jwt"`
+	JTI     string    `bson:"_id"`
+	JWT     string    `bson:"jwt"`
+	User    string    `bson:"user"`
+	Created time.Time `bson:"created"`
 }
 
-func (m *mongo) SaveJWT(jti string, jwt string) error {
+func (m *mongo) SaveJWT(jti, jwt string, u auth.User) error {
 	col, closer := m.getJWTCollection()
 	defer closer()
 
 	if err := col.Insert(jwtKV{
-		JTI: jti,
-		JWT: jwt,
+		JTI:     jti,
+		JWT:     jwt,
+		Created: time.Now(),
+		User:    u.UserID(),
 	}); err != nil {
 		return err
 	}

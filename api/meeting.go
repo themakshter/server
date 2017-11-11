@@ -310,7 +310,7 @@ func (v *v1) getMeetingMutations(meetTypes meetingTypes) graphql.Fields {
 				if err != nil {
 					return nil, err
 				}
-				if err = v.db.SaveJWT(jti, jwt); err != nil {
+				if err = v.db.SaveJWT(jti, jwt, u); err != nil {
 					return nil, err
 				}
 				return map[string]interface{}{
