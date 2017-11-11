@@ -206,6 +206,10 @@ func (v *v1) initMeetingTypes(orgTypes organisationTypes, osTypes outcomeSetType
 				Type:        graphql.NewNonNull(graphql.String),
 				Description: "A beneificiary JWT, this can be used to complete the meeting",
 			},
+			"JTI": &graphql.Field{
+				Type:        graphql.NewNonNull(graphql.String),
+				Description: "The unique JWT ID associated with the generated JWT. Can be used to retrieve or blacklist the JWT.",
+			},
 			"meeting": &graphql.Field{
 				Type:        graphql.NewNonNull(ret.meetingType),
 				Description: "The meeting",
@@ -302,12 +306,16 @@ func (v *v1) getMeetingMutations(meetTypes meetingTypes) graphql.Fields {
 				if err != nil {
 					return nil, err
 				}
-				jwt, err := v.authGen.GenerateBeneficiaryJWT(beneficiaryID, meeting.ID, (time.Hour*24)*time.Duration(daysToComplete))
+				jti, jwt, err := v.authGen.GenerateBeneficiaryJWT(beneficiaryID, meeting.ID, (time.Hour*24)*time.Duration(daysToComplete))
 				if err != nil {
+					return nil, err
+				}
+				if err = v.db.SaveJWT(jti, jwt); err != nil {
 					return nil, err
 				}
 				return map[string]interface{}{
 					"JWT":     jwt,
+					"JTI":     jti,
 					"meeting": meeting,
 				}, nil
 			}),

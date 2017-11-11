@@ -5,7 +5,9 @@ import (
 	"time"
 
 	"errors"
+
 	jwtLib "github.com/dgrijalva/jwt-go"
+	"github.com/satori/go.uuid"
 )
 
 const beneficiaryKey = "beneficiary"
@@ -27,10 +29,11 @@ func NewBeneficiaryJWTGenerator(aud, iss string, private *rsa.PrivateKey) Genera
 	}
 }
 
-func (b *benGen) GenerateBeneficiaryJWT(benID, meetingID string, expiry time.Duration) (string, error) {
+func (b *benGen) GenerateBeneficiaryJWT(benID, meetingID string, expiry time.Duration) (jti, jwt string, err error) {
 	meta := map[string]interface{}{}
 	meta[beneficiaryKey] = true
 	meta[assessmentScopeKey] = meetingID
+	jti = uuid.NewV4().String()
 	token := jwtLib.NewWithClaims(jwtLib.SigningMethodRS256, jwtUser{
 		AppMetadata: meta,
 		StandardClaims: jwtLib.StandardClaims{
@@ -39,9 +42,11 @@ func (b *benGen) GenerateBeneficiaryJWT(benID, meetingID string, expiry time.Dur
 			IssuedAt:  time.Now().Unix(),
 			Issuer:    b.iss,
 			Subject:   benID,
+			Id:        jti,
 		},
 	})
-	return token.SignedString(b.private)
+	jwt, err = token.SignedString(b.private)
+	return
 }
 
 type benAuth struct {
