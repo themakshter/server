@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -24,6 +25,7 @@ func (v *v1) getSchema(orgTypes organisationTypes, osTypes outcomeSetTypes, meet
 		v.getOrgQueries(orgTypes),
 		v.getOSQueries(osTypes),
 		v.getRepQueries(repTypes),
+		v.getJWTQueries(),
 	)
 	if err != nil {
 		return nil, err
