@@ -18,3 +18,8 @@ func (m *mongo) getOrganisationCollection() (*mgo.Collection, sessionEnder) {
 	session := m.baseSession.Copy()
 	return session.DB("").C("organisations"), session.Close
 }
+
+func (m *mongo) getJWTCollection() (*mgo.Collection, sessionEnder) {
+	session := m.baseSession.Copy()
+	return session.DB("").C("jwts"), session.Close
+}

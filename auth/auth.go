@@ -26,5 +26,5 @@ type Authenticator interface {
 
 // Generator generates beneficiary JWTs for use with self assessments
 type Generator interface {
-	GenerateBeneficiaryJWT(benID, meetingID string, expiry time.Duration) (string, error)
+	GenerateBeneficiaryJWT(benID, meetingID string, expiry time.Duration) (jti, jwt string, err error)
 }
